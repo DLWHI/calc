@@ -1,0 +1,22 @@
+[
+{
+  "directory": "/Users/lacresha/Desktop/source/calc/build",
+  "command": "/usr/local/bin/g++ -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -I/Users/lacresha/Desktop/source/calc/build -I/Users/lacresha/Desktop/source/calc -I/Users/lacresha/Desktop/source/calc/build/calc.v2_autogen/include -iframework /usr/local/lib -isystem /usr/local/lib/QtCore.framework/Headers -isystem /usr/local/share/qt/mkspecs/macx-clang -isystem /usr/local/lib/QtWidgets.framework/Headers -isystem /usr/local/lib/QtGui.framework/Headers -g -fdiagnostics-color=always -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.6 -fPIC -std=gnu++17 -o CMakeFiles/calc.v2.dir/calc.v2_autogen/mocs_compilation.cpp.o -c /Users/lacresha/Desktop/source/calc/build/calc.v2_autogen/mocs_compilation.cpp",
+  "file": "/Users/lacresha/Desktop/source/calc/build/calc.v2_autogen/mocs_compilation.cpp"
+},
+{
+  "directory": "/Users/lacresha/Desktop/source/calc/build",
+  "command": "/usr/local/bin/g++ -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -I/Users/lacresha/Desktop/source/calc/build -I/Users/lacresha/Desktop/source/calc -I/Users/lacresha/Desktop/source/calc/build/calc.v2_autogen/include -iframework /usr/local/lib -isystem /usr/local/lib/QtCore.framework/Headers -isystem /usr/local/share/qt/mkspecs/macx-clang -isystem /usr/local/lib/QtWidgets.framework/Headers -isystem /usr/local/lib/QtGui.framework/Headers -g -fdiagnostics-color=always -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.6 -fPIC -std=gnu++17 -o CMakeFiles/calc.v2.dir/main.cpp.o -c /Users/lacresha/Desktop/source/calc/main.cpp",
+  "file": "/Users/lacresha/Desktop/source/calc/main.cpp"
+},
+{
+  "directory": "/Users/lacresha/Desktop/source/calc/build",
+  "command": "/usr/local/bin/g++ -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -I/Users/lacresha/Desktop/source/calc/build -I/Users/lacresha/Desktop/source/calc -I/Users/lacresha/Desktop/source/calc/build/calc.v2_autogen/include -iframework /usr/local/lib -isystem /usr/local/lib/QtCore.framework/Headers -isystem /usr/local/share/qt/mkspecs/macx-clang -isystem /usr/local/lib/QtWidgets.framework/Headers -isystem /usr/local/lib/QtGui.framework/Headers -g -fdiagnostics-color=always -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.6 -fPIC -std=gnu++17 -o CMakeFiles/calc.v2.dir/src/view/mainwindow.cpp.o -c /Users/lacresha/Desktop/source/calc/src/view/mainwindow.cpp",
+  "file": "/Users/lacresha/Desktop/source/calc/src/view/mainwindow.cpp"
+},
+{
+  "directory": "/Users/lacresha/Desktop/source/calc/build",
+  "command": "/usr/local/bin/g++ -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -I/Users/lacresha/Desktop/source/calc/build -I/Users/lacresha/Desktop/source/calc -I/Users/lacresha/Desktop/source/calc/build/calc.v2_autogen/include -iframework /usr/local/lib -isystem /usr/local/lib/QtCore.framework/Headers -isystem /usr/local/share/qt/mkspecs/macx-clang -isystem /usr/local/lib/QtWidgets.framework/Headers -isystem /usr/local/lib/QtGui.framework/Headers -g -fdiagnostics-color=always -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.6 -fPIC -std=gnu++17 -o CMakeFiles/calc.v2.dir/src/model/translator.cc.o -c /Users/lacresha/Desktop/source/calc/src/model/translator.cc",
+  "file": "/Users/lacresha/Desktop/source/calc/src/model/translator.cc"
+}
+]
