@@ -21,29 +21,32 @@ int main(int argc, char *argv[])
     std::cout << tr.Fix("sin()2") << std::endl;
     std::cout << tr.Fix("xx") << std::endl;
     std::cout << tr.Fix("22") << std::endl;
-    // std::cout << std::endl;
-    // std::cout << tr.Fix("sin(2") << std::endl;
-    // std::cout << tr.Fix("sin2x") << std::endl;
-    // std::cout << tr.Fix("sinxcos2") << std::endl;
-    // std::cout << tr.Fix("sin)cos(0") << std::endl;
-    // std::cout << tr.Fix("sin(2") << std::endl;
-    // std::cout << tr.Fix("sincos8") << std::endl;
-    // std::cout << tr.Fix(")cos()") << std::endl;
+    std::cout << std::endl;
+    std::cout << tr.Fix("sin(2") << std::endl;
+    std::cout << tr.Fix("sin2x") << std::endl;
+    std::cout << tr.Fix("sinxcos2") << std::endl;
+    std::cout << tr.Fix("sin(2") << std::endl;
+    std::cout << tr.Fix("sincos8") << std::endl;
+    std::cout << tr.Fix(")cos()") << std::endl;
+    std::cout << tr.Fix("sin2xxcos5x") << std::endl;
+    std::cout << tr.Fix("sin(2xx(1+x))cos2x(1-x)") << std::endl;
+    std::cout << tr.Fix("(1+xsinx)sincos(1+x-cosx)") << std::endl;
+    std::cout << tr.Fix("cos(x-1)xcosx-sinxsin(1-xx)") << std::endl;
 
     std::cout << tr.Fix("2sin") << std::endl; // add *
     std::cout << tr.Fix("2(") << std::endl; // add *
     std::cout << tr.Fix("2x") << std::endl; // add *
     
     std::cout << tr.Fix("++") << std::endl; // check for unary
-    std::cout << tr.Fix("+)") << std::endl; // throw exception maybe
     
     std::cout << tr.Fix("sin2") << std::endl; // add brackets 
     std::cout << tr.Fix("sin+") << std::endl; // add brackets
     std::cout << tr.Fix("sincos") << std::endl; // add brackets
-    std::cout << tr.Fix("sin)") << std::endl; // Fix brackets
     std::cout << tr.Fix("sinx") << std::endl; // add brackets
+    std::cout << tr.Fix("(sin()x)))0))00)0") << std::endl; // add brackets
+    std::cout << tr.Fix("(sinx") << std::endl; // add brackets
+    std::cout << tr.Fix("(sinx))") << std::endl; // add brackets
 
-    std::cout << tr.Fix("(+") << std::endl; // make unary
     std::cout << tr.Fix("()") << std::endl; // x throw exception or Fix
 
     std::cout << tr.Fix(")2") << std::endl; // add *

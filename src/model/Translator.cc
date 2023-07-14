@@ -9,55 +9,70 @@ namespace s21 {
 
   }
 
-std::string Translator::Fix(const std::string& expression) const {
+std::string Translator::Fix(const std::string& expression) {
     std::string fixed;
-    TokenType prev_token = TokenType::UNKNOWN;
-    TokenType current_token = TokenType::UNKNOWN;
-    int unclosed = 0, bracket = 0;
-    for (position i = expression.begin(); i != expression.end(); PushToken(i, fixed)) {
-      for (; *i == ' '; i++) { }
-      current_token = GetTokenType(i);
-      if (prev_token == TokenType::FUNCTION && 
-          (isNumeric(current_token) || current_token == TokenType::OPERATOR)) {
-          fixed += '(';
-          ++unclosed;
-      } else if (current_token == TokenType::OPERATOR ||
-          current_token == TokenType::OPEN_BRACKET ||
-          current_token == TokenType::FUNCTION) {
-        PushBrackets(unclosed, fixed);
-        unclosed = 0;
-      }
+    pos = expression.begin();
+    end = expression.end();
+    prev_token = TokenType::UNKNOWN;
+    current_token = TokenType::UNKNOWN;
+    unclosed = bracket = 0;
+    for (; pos != end; PushToken(fixed)) {
+      for (; pos != end && *pos == ' '; ++pos) { }
+      current_token = GetTokenType(pos);
+      TryOpenBracket(fixed);
       if (skipsMultiplyRhs(prev_token) && skipsMultiplyLhs(current_token)) {
         fixed += '*';
       }
-      if (current_token == TokenType::OPEN_BRACKET) {
-        ++bracket;
-      }
-      else if (current_token == TokenType::CLOSE_BRACKET) {
-        --bracket;
-      }
+      ManageBrackets();
       prev_token = current_token;
     }
-    // if (!finishesExpr(last_token))
+    // if (!finishesExpr(prev_token))
     //   throw s21::bad_expression("Expression is not finished");
-    if (bracket < 0) 
-      return fixed;  // add parenthesis fixing
-    else if (bracket > 0 || unclosed > 0)  
+    if (bracket > 0 || unclosed > 0)  
       PushBrackets(bracket + unclosed, fixed);
     return fixed;
   }
 
-  void Translator::PushBrackets(int count, std::string& dest) const noexcept {
+  void Translator::TryOpenBracket(std::string& dest) noexcept {
+    if (prev_token == TokenType::FUNCTION && 
+      (isNumeric(current_token) || current_token == TokenType::OPERATOR)) {
+      dest += '(';
+      ++unclosed;
+    } else if (current_token == TokenType::OPERATOR ||
+        current_token == TokenType::OPEN_BRACKET ||
+        current_token == TokenType::FUNCTION) {
+      PushBrackets(unclosed, dest);
+      unclosed = 0;
+    }
+  }
+
+  void Translator::ManageBrackets() {
+    if (current_token == TokenType::OPEN_BRACKET) {
+      ++bracket;
+    }
+    else if (current_token == TokenType::CLOSE_BRACKET) {
+      --bracket;
+      if (bracket < 0 && pos != end) {
+        for (bracket = 0; pos != end && *pos == ')'; ++pos) { };
+        current_token = GetTokenType(pos);
+      }
+      if (prev_token == TokenType::OPERATOR || prev_token == TokenType::FUNCTION)
+        throw s21::bad_expression("Expression has an ambiguous brackets");
+    }
+  }
+
+  void Translator::PushBrackets(int count, std::string& dest) noexcept {
     for (; count; --count)
         dest += ')';
   }
 
-  void Translator::PushToken(position& pos, std::string& dest) const noexcept
+  void Translator::PushToken(std::string& dest) noexcept
   {
-    TokenType current_type = GetTokenType(pos);
-    dest += *pos++;
-    for (; current_type == GetTokenType(pos) && !isOneSymboled(current_type); pos++)
-      dest += *pos;
+    if (pos != end)
+      dest += *pos++;
+    if (!isOneSymboled(prev_token))
+      for (; pos != end && prev_token == GetTokenType(pos); pos++)
+        dest += *pos;
   }
 
   Translator::TokenType Translator::GetTokenType(const position& symbol) const noexcept
@@ -77,32 +92,30 @@ std::string Translator::Fix(const std::string& expression) const {
     return TokenType::FUNCTION;
   }
 
-  constexpr bool Translator::skipsMultiplyRhs(TokenType token) const {
+  constexpr bool Translator::skipsMultiplyRhs(TokenType token) const noexcept {
     return isNumeric(token) || 
            token == TokenType::CLOSE_BRACKET;
   }
 
-  constexpr bool Translator::skipsMultiplyLhs(TokenType token) const {
+  constexpr bool Translator::skipsMultiplyLhs(TokenType token) const noexcept {
     return isNumeric(token) || 
            token == TokenType::OPEN_BRACKET ||
            token == TokenType::FUNCTION;
   }
 
-  constexpr bool Translator::isNumeric(TokenType token) const
-  {
+  constexpr bool Translator::isNumeric(TokenType token) const noexcept {
     return token == TokenType::DIGIT ||
            token == TokenType::ARG;
   }
   
-  constexpr bool Translator::isOneSymboled(TokenType token) const
-  {
+  constexpr bool Translator::isOneSymboled(TokenType token) const noexcept {
     return token == TokenType::OPERATOR ||
            token == TokenType::ARG ||
            token == TokenType::OPEN_BRACKET ||
            token == TokenType::CLOSE_BRACKET;
   }
 
-  constexpr bool Translator::finishesExpr(TokenType token) const {
+  constexpr bool Translator::finishesExpr(TokenType token) const noexcept {
     return token == TokenType::DIGIT ||
            token == TokenType::ARG ||
            token == TokenType::CLOSE_BRACKET;

@@ -20,7 +20,7 @@ class Translator : public ITranslationModel  {
 
     void Tokenize(const std::string& expression) const;
 
-    std::string Fix(const std::string& expression) const;
+    std::string Fix(const std::string& expression);
   private:
     typedef std::string::const_iterator position;
 
@@ -45,23 +45,27 @@ class Translator : public ITranslationModel  {
       int bracket;
     };
     
+    void TryOpenBracket(std::string& dest)  noexcept;
+    void ManageBrackets();
 
-    int stateNumeric(std::string& dest, TokenType prev) const noexcept;
-    int stateOperator(std::string& dest, TokenType prev) const noexcept;
-    int stateFunction(std::string& dest, TokenType prev) const noexcept;
-    int stateBra(std::string& dest, TokenType prev) const noexcept;
-    int stateKet(std::string& dest, TokenType prev) const noexcept;
-
-    void PushBrackets(int count, std::string& dest) const noexcept;
-    void PushToken(position& pos, std::string& dest) const noexcept;
+    void PushBrackets(int count, std::string& dest) noexcept;
+    void PushToken(std::string& dest) noexcept;
 
     TokenType GetTokenType(const position& pos) const noexcept;
 
-    constexpr bool skipsMultiplyRhs(TokenType token) const;
-    constexpr bool skipsMultiplyLhs(TokenType token) const;
-    constexpr bool isNumeric(TokenType token) const;
-    constexpr bool isOneSymboled(TokenType token) const;
-    constexpr bool finishesExpr(TokenType token) const;
+    constexpr bool skipsMultiplyRhs(TokenType token) const noexcept;
+    constexpr bool skipsMultiplyLhs(TokenType token) const noexcept;
+    constexpr bool isNumeric(TokenType token) const noexcept;
+    constexpr bool isOneSymboled(TokenType token) const noexcept;
+    constexpr bool finishesExpr(TokenType token) const noexcept;
+
+    TokenType prev_token;
+    TokenType current_token;
+    int unclosed;
+    int bracket;
+    position pos;
+    position end;
+
 };
 }
 
