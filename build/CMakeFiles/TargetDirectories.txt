@@ -1,4 +1,0 @@
-/Users/lacresha/Desktop/source/calc/build/CMakeFiles/calc.v2.dir
-/Users/lacresha/Desktop/source/calc/build/CMakeFiles/edit_cache.dir
-/Users/lacresha/Desktop/source/calc/build/CMakeFiles/rebuild_cache.dir
-/Users/lacresha/Desktop/source/calc/build/CMakeFiles/calc.v2_autogen.dir
