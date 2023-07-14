@@ -17,8 +17,24 @@ std::string Translator::Fix(const std::string& expression) const {
     for (position i = expression.begin(); i != expression.end(); PushToken(i, fixed)) {
       for (; *i == ' '; i++) { }
       current_token = GetTokenType(i);
+      if (prev_token == TokenType::FUNCTION && 
+          (isNumeric(current_token) || current_token == TokenType::OPERATOR)) {
+          fixed += '(';
+          ++unclosed;
+      } else if (current_token == TokenType::OPERATOR ||
+          current_token == TokenType::OPEN_BRACKET ||
+          current_token == TokenType::FUNCTION) {
+        PushBrackets(unclosed, fixed);
+        unclosed = 0;
+      }
       if (skipsMultiplyRhs(prev_token) && skipsMultiplyLhs(current_token)) {
         fixed += '*';
+      }
+      if (current_token == TokenType::OPEN_BRACKET) {
+        ++bracket;
+      }
+      else if (current_token == TokenType::CLOSE_BRACKET) {
+        --bracket;
       }
       prev_token = current_token;
     }
@@ -29,35 +45,6 @@ std::string Translator::Fix(const std::string& expression) const {
     else if (bracket > 0 || unclosed > 0)  
       PushBrackets(bracket + unclosed, fixed);
     return fixed;
-  }
-
-  int Translator::stateNumeric(std::string& dest, TokenType prev) const noexcept {
-    if (prev == TokenType::FUNCTION) {
-      dest += '(';
-      return 1;
-    }
-  }
-
-  int Translator::stateOperator(std::string& dest, TokenType prev) const noexcept {
-    if (prev == TokenType::FUNCTION) {
-      dest += '(';
-      return 1;
-    }
-    // for each unclosed bracket added by fixer, add it
-  }
-
-  int Translator::stateFunction(std::string& dest, TokenType prev) const noexcept {
-    // for each unclosed bracket added by fixer, add it
-  }
-
-  int Translator::stateBra(std::string& dest, TokenType prev) const noexcept {
-    // for each unclosed bracket added by fixer, add it
-  }
-
-  int Translator::stateKet(std::string& dest, TokenType prev) const noexcept {
-    if (!isNumeric(prev) && prev != TokenType::CLOSE_BRACKET) {
-      return 0;  // discard
-    }
   }
 
   void Translator::PushBrackets(int count, std::string& dest) const noexcept {
