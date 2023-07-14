@@ -6,8 +6,8 @@
 namespace s21 {
 class ITranslationModel {
   public:
-    virtual vector<std::string> translate(const std::string& expression) const = 0;
-    virtual void tokenize(const std::string& expression) const = 0;
+    virtual vector<std::string> Translate(const std::string& expression) const = 0;
+    virtual void Tokenize(const std::string& expression) const = 0;
 };
 }
 

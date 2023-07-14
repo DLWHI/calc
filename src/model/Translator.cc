@@ -1,35 +1,34 @@
 #include "Translator.h"
 #include <iostream>
 namespace s21 {
-  vector<std::string> Translator::translate(const std::string& expression) const {
+  vector<std::string> Translator::Translate(const std::string& expression) const {
 
   }
 
-  void Translator::tokenize(const std::string& expression) const {
+  void Translator::Tokenize(const std::string& expression) const {
 
   }
 
-std::string Translator::fix(const std::string& expression) const {
+std::string Translator::Fix(const std::string& expression) const {
     std::string fixed;
-    TokenType last_token = TokenType::UNKNOWN;
+    TokenType prev_token = TokenType::UNKNOWN;
     TokenType current_token = TokenType::UNKNOWN;
     int unclosed = 0, bracket = 0;
     for (position i = expression.begin(); i != expression.end(); PushToken(i, fixed)) {
       for (; *i == ' '; i++) { }
       current_token = GetTokenType(i);
-      if (skipsMultiplyLhs(last_token) && skipsMultiplyRhs(current_token)) {
-        fixed += '*';
-      } else if (isNumeric(last_token) && current_token != TokenType::CLOSE_BRACKET) {
-        PushBrackets(unclosed, fixed);
-      } else if (last_token == TokenType::FUNCTION && current_token != TokenType::OPEN_BRACKET) {
-        fixed += '(';
-        ++unclosed;
-      } 
-      if (current_token == TokenType::OPEN_BRACKET)
-      ++bracket;
-      else if (current_token == TokenType::CLOSE_BRACKET)
-        --bracket;
-      last_token = current_token;
+      if (isNumeric(current_token)) {
+        unclosed += stateNumeric(fixed, prev_token);
+      } else if (current_token == TokenType::OPERATOR) {
+        
+      } else if (current_token == TokenType::FUNCTION) {
+        
+      } else if (current_token == TokenType::CLOSE_BRACKET) {
+        
+      } else if (current_token == TokenType::OPEN_BRACKET) {
+        
+      }
+      prev_token = current_token;
     }
     // if (!finishesExpr(last_token))
     //   throw s21::bad_expression("Expression is not finished");
@@ -38,6 +37,51 @@ std::string Translator::fix(const std::string& expression) const {
     else if (bracket > 0 || unclosed > 0)  
       PushBrackets(bracket + unclosed, fixed);
     return fixed;
+  }
+
+  int Translator::stateNumeric(std::string& dest, TokenType prev) const noexcept {
+    if (isNumeric(prev) || prev == TokenType::CLOSE_BRACKET) {
+      dest += '*';
+      return 0;
+    }
+    else if (prev == TokenType::FUNCTION) {
+      dest += '(';
+      return 1;
+    }
+  }
+
+  int Translator::stateOperator(std::string& dest, TokenType prev) const noexcept {
+    if (!isNumeric(prev) && prev != TokenType::CLOSE_BRACKET) {
+      // dest += '*';
+      return 0;  // add unary discard;
+    }
+    else if (prev == TokenType::FUNCTION) {
+      dest += '(';
+      return 1;
+    }
+    // for each unclosed bracket added by fixer, add it
+  }
+
+  int Translator::stateFunction(std::string& dest, TokenType prev) const noexcept {
+    if (isNumeric(prev) && prev == TokenType::CLOSE_BRACKET) {
+      dest += '*';
+      return 0;  // add unary discard;
+    }
+    // for each unclosed bracket added by fixer, add it
+  }
+
+  int Translator::stateBra(std::string& dest, TokenType prev) const noexcept {
+    if (isNumeric(prev) || prev == TokenType::CLOSE_BRACKET) {
+      dest += '*';
+      return 0;
+    }
+    // for each unclosed bracket added by fixer, add it
+  }
+
+  int Translator::stateKet(std::string& dest, TokenType prev) const noexcept {
+    if (!isNumeric(prev) && prev != TokenType::CLOSE_BRACKET) {
+      return 0;  // discard
+    }
   }
 
   void Translator::PushBrackets(int count, std::string& dest) const noexcept {
@@ -70,17 +114,7 @@ std::string Translator::fix(const std::string& expression) const {
     return TokenType::FUNCTION;
   }
 
-  constexpr bool Translator::skipsMultiplyRhs(TokenType token) const
-  {
-    return isNumeric(token) ||
-           token == TokenType::FUNCTION ||
-           token == TokenType::OPEN_BRACKET;
-  }
 
-  constexpr bool Translator::skipsMultiplyLhs(TokenType token) const {
-    return isNumeric(token) ||
-           token == TokenType::CLOSE_BRACKET;
-  }
 
   constexpr bool Translator::isNumeric(TokenType token) const
   {
