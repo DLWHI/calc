@@ -38,9 +38,11 @@ class Translator : public ITranslationModel  {
 
     struct TranslatorState
     {
-      position pos;
-      position end;
       std::string fixed;
+      TokenType prev;
+      TokenType current;
+      int unclosed;
+      int bracket;
     };
     
 
@@ -55,6 +57,8 @@ class Translator : public ITranslationModel  {
 
     TokenType GetTokenType(const position& pos) const noexcept;
 
+    constexpr bool skipsMultiplyRhs(TokenType token) const;
+    constexpr bool skipsMultiplyLhs(TokenType token) const;
     constexpr bool isNumeric(TokenType token) const;
     constexpr bool isOneSymboled(TokenType token) const;
     constexpr bool finishesExpr(TokenType token) const;

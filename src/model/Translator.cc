@@ -17,16 +17,8 @@ std::string Translator::Fix(const std::string& expression) const {
     for (position i = expression.begin(); i != expression.end(); PushToken(i, fixed)) {
       for (; *i == ' '; i++) { }
       current_token = GetTokenType(i);
-      if (isNumeric(current_token)) {
-        unclosed += stateNumeric(fixed, prev_token);
-      } else if (current_token == TokenType::OPERATOR) {
-        
-      } else if (current_token == TokenType::FUNCTION) {
-        
-      } else if (current_token == TokenType::CLOSE_BRACKET) {
-        
-      } else if (current_token == TokenType::OPEN_BRACKET) {
-        
+      if (skipsMultiplyRhs(prev_token) && skipsMultiplyLhs(current_token)) {
+        fixed += '*';
       }
       prev_token = current_token;
     }
@@ -40,22 +32,14 @@ std::string Translator::Fix(const std::string& expression) const {
   }
 
   int Translator::stateNumeric(std::string& dest, TokenType prev) const noexcept {
-    if (isNumeric(prev) || prev == TokenType::CLOSE_BRACKET) {
-      dest += '*';
-      return 0;
-    }
-    else if (prev == TokenType::FUNCTION) {
+    if (prev == TokenType::FUNCTION) {
       dest += '(';
       return 1;
     }
   }
 
   int Translator::stateOperator(std::string& dest, TokenType prev) const noexcept {
-    if (!isNumeric(prev) && prev != TokenType::CLOSE_BRACKET) {
-      // dest += '*';
-      return 0;  // add unary discard;
-    }
-    else if (prev == TokenType::FUNCTION) {
+    if (prev == TokenType::FUNCTION) {
       dest += '(';
       return 1;
     }
@@ -63,18 +47,10 @@ std::string Translator::Fix(const std::string& expression) const {
   }
 
   int Translator::stateFunction(std::string& dest, TokenType prev) const noexcept {
-    if (isNumeric(prev) && prev == TokenType::CLOSE_BRACKET) {
-      dest += '*';
-      return 0;  // add unary discard;
-    }
     // for each unclosed bracket added by fixer, add it
   }
 
   int Translator::stateBra(std::string& dest, TokenType prev) const noexcept {
-    if (isNumeric(prev) || prev == TokenType::CLOSE_BRACKET) {
-      dest += '*';
-      return 0;
-    }
     // for each unclosed bracket added by fixer, add it
   }
 
@@ -114,13 +90,23 @@ std::string Translator::Fix(const std::string& expression) const {
     return TokenType::FUNCTION;
   }
 
+  constexpr bool Translator::skipsMultiplyRhs(TokenType token) const {
+    return isNumeric(token) || 
+           token == TokenType::CLOSE_BRACKET;
+  }
 
+  constexpr bool Translator::skipsMultiplyLhs(TokenType token) const {
+    return isNumeric(token) || 
+           token == TokenType::OPEN_BRACKET ||
+           token == TokenType::FUNCTION;
+  }
 
   constexpr bool Translator::isNumeric(TokenType token) const
   {
     return token == TokenType::DIGIT ||
            token == TokenType::ARG;
   }
+  
   constexpr bool Translator::isOneSymboled(TokenType token) const
   {
     return token == TokenType::OPERATOR ||
