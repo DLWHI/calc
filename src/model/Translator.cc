@@ -1,78 +1,88 @@
 #include "Translator.h"
 #include <iostream>
 namespace s21 {
-  vector<std::string> Translator::Translate(const std::string& expression) const {
+  list<std::string> Translator::Translate(const list<std::string>& tokens) const {
 
   }
 
-  void Translator::Tokenize(const std::string& expression) const {
-
-  }
-
-std::string Translator::Fix(const std::string& expression) {
-    std::string fixed;
-    pos = expression.begin();
-    end = expression.end();
-    prev_token = TokenType::UNKNOWN;
-    current_token = TokenType::UNKNOWN;
-    unclosed = bracket = 0;
-    for (; pos != end; PushToken(fixed)) {
-      for (; pos != end && *pos == ' '; ++pos) { }
-      current_token = GetTokenType(pos);
-      TryOpenBracket(fixed);
-      if (skipsMultiplyRhs(prev_token) && skipsMultiplyLhs(current_token)) {
-        fixed += '*';
-      }
+  list<std::string> Translator::Tokenize(const std::string_view& expression) {
+    list<std::string> tokens;
+    pos_ = expression.begin();
+    end_ = expression.end();
+    prev_token_ = TokenType::UNKNOWN;
+    current_token_ = TokenType::UNKNOWN;
+    unclosed_ = bracket_ = 0;
+    do {
+      for (; pos_ != end_ && *pos_ == ' '; ++pos_) { }
+      current_token_ = GetTokenType(pos_);
+      TryOpenBracket(tokens);
+      TryPlaceMultiply(tokens);
       ManageBrackets();
-      prev_token = current_token;
-    }
-    // if (!finishesExpr(prev_token))
+      if (isBracketsBroken())
+        throw s21::bad_expression("Expression has an ambiguous bracket_s");
+    } while (PushToken(tokens));
+    if (bracket_ > 0 || unclosed_ > 0)
+      PushBrackets(bracket_ + unclosed_, tokens);
+    // if (!finishesExpr(GetTokenType(--tokens.end_())))
     //   throw s21::bad_expression("Expression is not finished");
-    if (bracket > 0 || unclosed > 0)  
-      PushBrackets(bracket + unclosed, fixed);
-    return fixed;
-  }
+    return tokens;
+ }
 
-  void Translator::TryOpenBracket(std::string& dest) noexcept {
-    if (prev_token == TokenType::FUNCTION && 
-      (isNumeric(current_token) || current_token == TokenType::OPERATOR)) {
-      dest += '(';
-      ++unclosed;
-    } else if (current_token == TokenType::OPERATOR ||
-        current_token == TokenType::OPEN_BRACKET ||
-        current_token == TokenType::FUNCTION) {
-      PushBrackets(unclosed, dest);
-      unclosed = 0;
+  void Translator::TryOpenBracket(list<std::string>& dest) noexcept {
+    if (prev_token_ == TokenType::FUNCTION && 
+      (isNumeric(current_token_) || current_token_ == TokenType::OPERATOR)) {
+      dest.push_back("(");
+      ++unclosed_;
+    } else if (isBracketFinisher(current_token_)) {
+      PushBrackets(unclosed_, dest);
+      unclosed_ = 0;
     }
   }
 
-  void Translator::ManageBrackets() {
-    if (current_token == TokenType::OPEN_BRACKET) {
-      ++bracket;
-    }
-    else if (current_token == TokenType::CLOSE_BRACKET) {
-      --bracket;
-      if (bracket < 0 && pos != end) {
-        for (bracket = 0; pos != end && *pos == ')'; ++pos) { };
-        current_token = GetTokenType(pos);
-      }
-      if (prev_token == TokenType::OPERATOR || prev_token == TokenType::FUNCTION)
-        throw s21::bad_expression("Expression has an ambiguous brackets");
+  void Translator::TryPlaceMultiply(list<std::string>& dest)  noexcept {
+    if (skipsMultiplyRhs(prev_token_) && skipsMultiplyLhs(current_token_)) {
+      dest.push_back("*");
     }
   }
 
-  void Translator::PushBrackets(int count, std::string& dest) noexcept {
+  void Translator::ManageBrackets() noexcept {
+    if (current_token_ == TokenType::OPEN_BRACKET) {
+      ++bracket_;
+    }
+    else if (current_token_ == TokenType::CLOSE_BRACKET) {
+      --bracket_;
+    }
+  }
+
+  void Translator::PushBrackets(int count, list<std::string>& dest) noexcept {
     for (; count; --count)
-        dest += ')';
+        dest.push_back(")");
   }
 
-  void Translator::PushToken(std::string& dest) noexcept
+  bool Translator::PushToken(list<std::string>& dest) noexcept
   {
-    if (pos != end)
-      dest += *pos++;
-    if (!isOneSymboled(prev_token))
-      for (; pos != end && prev_token == GetTokenType(pos); pos++)
-        dest += *pos;
+    if (pos_ == end_)
+      return false;
+    if (current_token_ == TokenType::CLOSE_BRACKET && bracket_ < 0) {
+      MovePos([this]() constexpr { return pos_ != end_ && *pos_ == ')';});
+    } else if (isOneSymboled(current_token_)) {
+      dest.push_back(std::string(pos_, pos_ + 1));
+      ++pos_;
+      prev_token_ = current_token_;
+    } else if (current_token_ == TokenType::FUNCTION) {
+
+    } else {
+      position start = pos_;
+      MovePos([this, start]() constexpr { return pos_ != end_ && GetTokenType(pos_) == TokenType::DIGIT;});
+      dest.push_back(std::string(start, pos_));
+      prev_token_ = current_token_;
+    }
+    return true;
+  }
+
+  template <typename Predicate>
+  void Translator::MovePos(Predicate condition) noexcept {
+      for (; condition(); ++pos_) { };
   }
 
   Translator::TokenType Translator::GetTokenType(const position& symbol) const noexcept
@@ -103,6 +113,12 @@ std::string Translator::Fix(const std::string& expression) {
            token == TokenType::FUNCTION;
   }
 
+  constexpr bool Translator::isBracketFinisher(TokenType token) const noexcept {
+    return token == TokenType::OPERATOR ||
+        token == TokenType::OPEN_BRACKET ||
+        token == TokenType::FUNCTION;
+  }
+
   constexpr bool Translator::isNumeric(TokenType token) const noexcept {
     return token == TokenType::DIGIT ||
            token == TokenType::ARG;
@@ -119,5 +135,15 @@ std::string Translator::Fix(const std::string& expression) {
     return token == TokenType::DIGIT ||
            token == TokenType::ARG ||
            token == TokenType::CLOSE_BRACKET;
+  }
+
+  constexpr void Translator::MoveFunction() noexcept {
+    if (std::string_view(pos_, 3).compare("sin"))
+      pos_ += 3;
+  }
+
+  constexpr bool Translator::isBracketsBroken() const noexcept {
+    return (prev_token_ == TokenType::OPERATOR || prev_token_ == TokenType::FUNCTION) 
+           && current_token_ == TokenType::CLOSE_BRACKET;
   }
 }

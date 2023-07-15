@@ -1,13 +1,14 @@
 #ifndef SRC_MODEL_I_TRANSLATION_MODEL_H_
 #define SRC_MODEL_I_TRANSLATION_MODEL_H_
-#include "../containers/vector.h"
+#include "../containers/s21_list.h"
 #include <string>
+#include <string_view>
 
 namespace s21 {
 class ITranslationModel {
   public:
-    virtual vector<std::string> Translate(const std::string& expression) const = 0;
-    virtual void Tokenize(const std::string& expression) const = 0;
+    virtual list<std::string> Translate(const list<std::string>& tokens) const = 0;
+    virtual list<std::string> Tokenize(const std::string_view& expression) = 0;
 };
 }
 
