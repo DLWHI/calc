@@ -21,8 +21,8 @@ namespace s21 {
     } while (PushToken(tokens));
     if (bracket_ + unclosed_ > 0)
       PushBrackets(bracket_ + unclosed_, tokens);
-    // if (!ExprFinished(GetTokenType(--tokens.end())))
-    //   throw s21::bad_expression("Expression is not finished");
+    if (!ExprFinished(tokens.back()))
+      throw s21::bad_expression("Expression is not finished");
     return tokens;
  }
 
@@ -127,10 +127,8 @@ namespace s21 {
            token == TokenType::ARG;
   }
   
-  constexpr bool Translator::ExprFinished(TokenType token) const noexcept {
-    return token == TokenType::DIGIT ||
-           token == TokenType::ARG ||
-           token == TokenType::CLOSE_BRACKET;
+  bool Translator::ExprFinished(const std::string& last_token) const noexcept {
+    return kOperators.find(last_token.c_str()) == std::string_view::npos;
   }
 
   void Translator::AdvancePosition() noexcept {

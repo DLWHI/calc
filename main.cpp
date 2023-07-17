@@ -8,6 +8,7 @@
 int main(int argc, char *argv[])
 {
     s21::Translator tr;
+    std::cout << tr.Tokenize("(*1+3") << std::endl;
     std::cout << tr.Tokenize("1+sin-2") << std::endl;
     std::cout << tr.Tokenize("1+sin*2") << std::endl;
     std::cout << tr.Tokenize("sin()cos()") << std::endl;

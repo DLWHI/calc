@@ -4,6 +4,10 @@
 #include "ITranslationModel.h"
 #include "../containers/array.h"
 
+// TODO:
+// - Add empty brackets () handling
+// - Add mod/pow handling
+// - Add scientific notation handling
 
 namespace s21 {
 class bad_expression final : public std::exception {
@@ -75,7 +79,7 @@ class Translator : public ITranslationModel  {
     constexpr bool BracketsBroken() const noexcept;    
     constexpr bool OneSymboled() const noexcept;
     constexpr bool IsNumeric(TokenType token) const noexcept;
-    constexpr bool ExprFinished(TokenType token) const noexcept;
+    bool ExprFinished(const std::string& last_token) const noexcept;
 
     TokenType prev_token_;
     TokenType current_token_;
