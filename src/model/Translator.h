@@ -43,6 +43,7 @@ class Translator : public ITranslationModel  {
       "sqrt"
     };
 
+
     enum class TokenType {
       DIGIT,
       ARG,
@@ -53,26 +54,28 @@ class Translator : public ITranslationModel  {
       UNKNOWN
     };
     
+    void Fix(list<std::string>& dest) noexcept;
+
     void TryOpenBracket(list<std::string>& dest)  noexcept;
-    void TryPlaceMultiply(list<std::string>& dest)  noexcept;
     void ManageBrackets() noexcept;
 
     void PushBrackets(int count, list<std::string>& dest) noexcept;
     bool PushToken(list<std::string>& dest) noexcept;
 
-    template <typename Predicate>
-    void MovePos(Predicate condition) noexcept;
-    void MoveFunction() noexcept;
+    void AdvancePosition() noexcept;
+    constexpr bool BracketDiscardCond() const noexcept;
+    constexpr bool TokenStopCond() const noexcept;
 
     TokenType GetTokenType(const position& pos) const noexcept;
 
-    constexpr bool skipsMultiplyRhs(TokenType token) const noexcept;
-    constexpr bool skipsMultiplyLhs(TokenType token) const noexcept;
-    constexpr bool isBracketFinisher(TokenType token) const noexcept;
-    constexpr bool isNumeric(TokenType token) const noexcept;
-    constexpr bool isOneSymboled(TokenType token) const noexcept;
-    constexpr bool finishesExpr(TokenType token) const noexcept;
-    constexpr bool isBracketsBroken() const noexcept;    
+    constexpr bool MultiplySkipped() const noexcept;
+    constexpr bool BracketSkipped() const noexcept;
+    constexpr bool BracketFinished() const noexcept;
+    constexpr bool BracketNotOpened() const noexcept;
+    constexpr bool BracketsBroken() const noexcept;    
+    constexpr bool OneSymboled() const noexcept;
+    constexpr bool IsNumeric(TokenType token) const noexcept;
+    constexpr bool ExprFinished(TokenType token) const noexcept;
 
     TokenType prev_token_;
     TokenType current_token_;
@@ -80,7 +83,6 @@ class Translator : public ITranslationModel  {
     int bracket_;
     position pos_;
     position end_;
-
 };
 }
 

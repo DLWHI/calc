@@ -15,42 +15,35 @@ namespace s21 {
     do {
       for (; pos_ != end_ && *pos_ == ' '; ++pos_) { }
       current_token_ = GetTokenType(pos_);
-      TryOpenBracket(tokens);
-      TryPlaceMultiply(tokens);
-      ManageBrackets();
-      if (isBracketsBroken())
-        throw s21::bad_expression("Expression has an ambiguous bracket_s");
+      Fix(tokens);
+      if (BracketsBroken())
+        throw s21::bad_expression("Expression has an ambiguous brackets");
     } while (PushToken(tokens));
-    if (bracket_ > 0 || unclosed_ > 0)
+    if (bracket_ + unclosed_ > 0)
       PushBrackets(bracket_ + unclosed_, tokens);
-    // if (!finishesExpr(GetTokenType(--tokens.end_())))
+    // if (!ExprFinished(GetTokenType(--tokens.end())))
     //   throw s21::bad_expression("Expression is not finished");
     return tokens;
  }
 
-  void Translator::TryOpenBracket(list<std::string>& dest) noexcept {
-    if (prev_token_ == TokenType::FUNCTION && 
-      current_token_ != TokenType::OPEN_BRACKET) {
+  void Translator::Fix(list<std::string>& dest) noexcept {
+    if (BracketSkipped()) {
       dest.push_back("(");
       ++unclosed_;
-    } else if (isBracketFinisher(current_token_) && prev_token_ != TokenType::FUNCTION && (unclosed_ + bracket_) == 1) {
+    } else if (BracketFinished()) {
       PushBrackets(unclosed_, dest);
       unclosed_ = 0;
     }
-  }
 
-  void Translator::TryPlaceMultiply(list<std::string>& dest)  noexcept {
-    if (skipsMultiplyRhs(prev_token_) && skipsMultiplyLhs(current_token_)) {
-      dest.push_back("*");
-    }
-  }
-
-  void Translator::ManageBrackets() noexcept {
     if (current_token_ == TokenType::OPEN_BRACKET) {
       ++bracket_;
     }
     else if (current_token_ == TokenType::CLOSE_BRACKET) {
       --bracket_;
+    }
+
+    if (MultiplySkipped()) {
+      dest.push_back("*");
     }
   }
 
@@ -63,29 +56,16 @@ namespace s21 {
   {
     if (pos_ == end_)
       return false;
-    position start = pos_;
-    if (current_token_ == TokenType::CLOSE_BRACKET && bracket_ < 0) {
-      MovePos([this]() constexpr { return pos_ != end_ && *pos_ == ')';});
+    if (BracketNotOpened()) {
+      for (; pos_ != end_ && *pos_ == ')'; ++pos_) { };
       bracket_ = 0;
-    } else if (isOneSymboled(current_token_)) {
-      ++pos_;
-      dest.push_back(std::string(start, pos_));
-      prev_token_ = current_token_;
-    } else if (current_token_ == TokenType::FUNCTION) {
-      MoveFunction();
-      dest.push_back(std::string(start, pos_));
-      prev_token_ = current_token_;
     } else {
-      MovePos([this, start]() constexpr { return pos_ != end_ && GetTokenType(pos_) == TokenType::DIGIT;});
+      position start = pos_;
+      AdvancePosition();
       dest.push_back(std::string(start, pos_));
       prev_token_ = current_token_;
     }
     return true;
-  }
-
-  template <typename Predicate>
-  void Translator::MovePos(Predicate condition) noexcept {
-    for (; condition(); ++pos_) { };
   }
 
   Translator::TokenType Translator::GetTokenType(const position& symbol) const noexcept
@@ -105,53 +85,65 @@ namespace s21 {
     return TokenType::FUNCTION;
   }
 
-  constexpr bool Translator::skipsMultiplyRhs(TokenType token) const noexcept {
-    return isNumeric(token) || 
-           token == TokenType::CLOSE_BRACKET;
+  constexpr bool Translator::MultiplySkipped() const noexcept {
+    return (IsNumeric(prev_token_) || 
+           prev_token_ == TokenType::CLOSE_BRACKET) &&
+           (IsNumeric(current_token_) || 
+           current_token_ == TokenType::OPEN_BRACKET ||
+           current_token_ == TokenType::FUNCTION);
   }
 
-  constexpr bool Translator::skipsMultiplyLhs(TokenType token) const noexcept {
-    return isNumeric(token) || 
-           token == TokenType::OPEN_BRACKET ||
-           token == TokenType::FUNCTION;
+  constexpr bool Translator::BracketSkipped() const noexcept {
+    return prev_token_ == TokenType::FUNCTION && 
+      current_token_ != TokenType::OPEN_BRACKET;
   }
 
-  constexpr bool Translator::isBracketFinisher(TokenType token) const noexcept {
-    return token == TokenType::OPERATOR ||
-        token == TokenType::OPEN_BRACKET ||
-        token == TokenType::FUNCTION;
+  constexpr bool Translator::BracketFinished() const noexcept {
+    return (current_token_ == TokenType::OPERATOR ||
+           current_token_ == TokenType::OPEN_BRACKET ||
+           current_token_ == TokenType::FUNCTION) &&
+           prev_token_ != TokenType::FUNCTION && 
+           (unclosed_ + bracket_) == 1;
   }
 
-  constexpr bool Translator::isNumeric(TokenType token) const noexcept {
+  constexpr bool Translator::BracketNotOpened() const noexcept {
+    return current_token_ == TokenType::CLOSE_BRACKET && bracket_ < 0;
+  }
+
+  constexpr bool Translator::BracketsBroken() const noexcept {
+    return (prev_token_ == TokenType::OPERATOR || prev_token_ == TokenType::FUNCTION) 
+           && current_token_ == TokenType::CLOSE_BRACKET;
+  }
+
+  constexpr bool Translator::OneSymboled() const noexcept {
+    return current_token_ == TokenType::OPERATOR ||
+           current_token_ == TokenType::ARG ||
+           current_token_ == TokenType::OPEN_BRACKET ||
+           current_token_ == TokenType::CLOSE_BRACKET;
+  }
+  
+  constexpr bool Translator::IsNumeric(TokenType token) const noexcept {
     return token == TokenType::DIGIT ||
            token == TokenType::ARG;
   }
   
-  constexpr bool Translator::isOneSymboled(TokenType token) const noexcept {
-    return token == TokenType::OPERATOR ||
-           token == TokenType::ARG ||
-           token == TokenType::OPEN_BRACKET ||
-           token == TokenType::CLOSE_BRACKET;
-  }
-
-  constexpr bool Translator::finishesExpr(TokenType token) const noexcept {
+  constexpr bool Translator::ExprFinished(TokenType token) const noexcept {
     return token == TokenType::DIGIT ||
            token == TokenType::ARG ||
            token == TokenType::CLOSE_BRACKET;
   }
 
-  void Translator::MoveFunction() noexcept {
-    std::size_t rem = std::distance(pos_, end_);
-    for (std::string_view func: kFunctions) {
-      if (!func.compare(std::string_view(pos_, std::min(func.size(), rem)))) {
-        pos_ += std::min(func.size(), rem);
-        return;
-      }
+  void Translator::AdvancePosition() noexcept {
+    if (OneSymboled()) {
+        ++pos_;
+    } else if (current_token_ == TokenType::FUNCTION) {
+      std::size_t rem = std::distance(pos_, end_);
+      auto func = kFunctions.begin();
+      for (; func != kFunctions.end() && 
+            func->compare(std::string_view(pos_, std::min(func->size(), rem))); ++func) { }
+      pos_ += std::min(func->size(), rem);
+    } else {
+      for (; pos_ != end_ && GetTokenType(pos_) == TokenType::DIGIT; ++pos_) { };
     }
-  }
-
-  constexpr bool Translator::isBracketsBroken() const noexcept {
-    return (prev_token_ == TokenType::OPERATOR || prev_token_ == TokenType::FUNCTION) 
-           && current_token_ == TokenType::CLOSE_BRACKET;
   }
 }
