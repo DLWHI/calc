@@ -33,7 +33,7 @@ namespace s21 {
       current_token_ != TokenType::OPEN_BRACKET) {
       dest.push_back("(");
       ++unclosed_;
-    } else if (isBracketFinisher(current_token_)) {
+    } else if (isBracketFinisher(current_token_) && prev_token_ != TokenType::FUNCTION && (unclosed_ + bracket_) == 1) {
       PushBrackets(unclosed_, dest);
       unclosed_ = 0;
     }
