@@ -1,8 +1,9 @@
 #ifndef SRC_MODEL_I_TRANSLATION_MODEL_H_
 #define SRC_MODEL_I_TRANSLATION_MODEL_H_
-#include "../containers/s21_list.h"
 #include <string>
 #include <string_view>
+
+#include "../containers/s21_list.h"
 
 namespace s21 {
 class ITranslationModel {

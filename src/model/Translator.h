@@ -1,6 +1,9 @@
 #ifndef SRC_MODEL_TRANSLATOR_H_
 #define SRC_MODEL_TRANSLATOR_H_
+
 #include "ITranslationModel.h"
+#include "../containers/array.h"
+
 
 namespace s21 {
 class bad_expression final : public std::exception {
@@ -23,6 +26,22 @@ class Translator : public ITranslationModel  {
     typedef std::string_view::const_iterator position;
 
     static constexpr std::string_view kOperators = "+-/*^%~#";
+    static constexpr array<std::string_view, 14> kFunctions = {
+      "tg",
+      "sin",
+      "cos",
+      "tan",
+      "ctg",
+      "cot",
+      "exp",
+      "atg",
+      "asin",
+      "acos",
+      "atan",
+      "acot",
+      "actg",
+      "sqrt"
+    };
 
     enum class TokenType {
       DIGIT,

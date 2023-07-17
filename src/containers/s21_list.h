@@ -308,7 +308,6 @@ class list {
       os << ptr->data << ' ';
       ptr = ptr->next;
     }
-    os << std::endl;
     return os;
   }
 

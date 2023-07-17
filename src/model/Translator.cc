@@ -30,7 +30,7 @@ namespace s21 {
 
   void Translator::TryOpenBracket(list<std::string>& dest) noexcept {
     if (prev_token_ == TokenType::FUNCTION && 
-      (isNumeric(current_token_) || current_token_ == TokenType::OPERATOR)) {
+      current_token_ != TokenType::OPEN_BRACKET) {
       dest.push_back("(");
       ++unclosed_;
     } else if (isBracketFinisher(current_token_)) {
@@ -63,16 +63,19 @@ namespace s21 {
   {
     if (pos_ == end_)
       return false;
+    position start = pos_;
     if (current_token_ == TokenType::CLOSE_BRACKET && bracket_ < 0) {
       MovePos([this]() constexpr { return pos_ != end_ && *pos_ == ')';});
+      bracket_ = 0;
     } else if (isOneSymboled(current_token_)) {
-      dest.push_back(std::string(pos_, pos_ + 1));
       ++pos_;
+      dest.push_back(std::string(start, pos_));
       prev_token_ = current_token_;
     } else if (current_token_ == TokenType::FUNCTION) {
-
+      MoveFunction();
+      dest.push_back(std::string(start, pos_));
+      prev_token_ = current_token_;
     } else {
-      position start = pos_;
       MovePos([this, start]() constexpr { return pos_ != end_ && GetTokenType(pos_) == TokenType::DIGIT;});
       dest.push_back(std::string(start, pos_));
       prev_token_ = current_token_;
@@ -82,7 +85,7 @@ namespace s21 {
 
   template <typename Predicate>
   void Translator::MovePos(Predicate condition) noexcept {
-      for (; condition(); ++pos_) { };
+    for (; condition(); ++pos_) { };
   }
 
   Translator::TokenType Translator::GetTokenType(const position& symbol) const noexcept
@@ -137,9 +140,14 @@ namespace s21 {
            token == TokenType::CLOSE_BRACKET;
   }
 
-  constexpr void Translator::MoveFunction() noexcept {
-    if (std::string_view(pos_, 3).compare("sin"))
-      pos_ += 3;
+  void Translator::MoveFunction() noexcept {
+    std::size_t rem = std::distance(pos_, end_);
+    for (std::string_view func: kFunctions) {
+      if (!func.compare(std::string_view(pos_, std::min(func.size(), rem)))) {
+        pos_ += std::min(func.size(), rem);
+        return;
+      }
+    }
   }
 
   constexpr bool Translator::isBracketsBroken() const noexcept {
