@@ -5,6 +5,7 @@
 #include "../containers/array.h"
 
 // TODO:
+// - Add unary operators
 // - Add empty brackets () handling
 // - Add mod/pow handling
 // - Add scientific notation handling
@@ -29,7 +30,7 @@ class Translator : public ITranslationModel  {
   private:
     typedef std::string_view::const_iterator position;
 
-    static constexpr std::string_view kOperators = "+-/*^%~#";
+    static constexpr std::string_view kOperators = "+-/*^%";
     static constexpr array<std::string_view, 14> kFunctions = {
       "tg",
       "sin",
@@ -49,40 +50,47 @@ class Translator : public ITranslationModel  {
 
 
     enum class TokenType {
-      DIGIT,
-      ARG,
-      OPERATOR,
-      FUNCTION,
-      OPEN_BRACKET,
-      CLOSE_BRACKET,
-      UNKNOWN
+      kDigit,
+      kArg,
+      kOperator,
+      kFunction,
+      kOpenBracket,
+      kCloseBracket,
+      kUnknown
     };
     
-    void Fix(list<std::string>& dest) noexcept;
+    enum class State {
+      kPush,
+      kDiscard,
+      kFunctionErr,
+      kLonelyOperator,
+      kBrokenBrackets
+    };
 
-    void TryOpenBracket(list<std::string>& dest)  noexcept;
-    void ManageBrackets() noexcept;
+    void Fix(list<std::string>& dest) noexcept;
 
     void PushBrackets(int count, list<std::string>& dest) noexcept;
     bool PushToken(list<std::string>& dest) noexcept;
 
     void AdvancePosition() noexcept;
-    constexpr bool BracketDiscardCond() const noexcept;
-    constexpr bool TokenStopCond() const noexcept;
+    void ThrowErrors(const std::string_view& last_token) const;
 
     TokenType GetTokenType(const position& pos) const noexcept;
 
+    constexpr bool ValidState() const noexcept;
     constexpr bool MultiplySkipped() const noexcept;
+    constexpr bool FunctionEmpty() const noexcept;
     constexpr bool BracketSkipped() const noexcept;
     constexpr bool BracketFinished() const noexcept;
     constexpr bool BracketNotOpened() const noexcept;
     constexpr bool BracketsBroken() const noexcept;    
     constexpr bool OneSymboled() const noexcept;
     constexpr bool IsNumeric(TokenType token) const noexcept;
-    bool ExprFinished(const std::string& last_token) const noexcept;
+    bool ExprFinished(const std::string_view& last_token) const noexcept;
 
     TokenType prev_token_;
     TokenType current_token_;
+    State push_;
     int unclosed_;
     int bracket_;
     position pos_;
