@@ -30,7 +30,7 @@ class Translator : public ITranslationModel  {
   private:
     typedef std::string_view::const_iterator position;
 
-    static constexpr std::string_view kOperators = "+-/*^%";
+    static constexpr std::string_view kOperators = "+-/*^%#~";
     static constexpr array<std::string_view, 14> kFunctions = {
       "tg",
       "sin",

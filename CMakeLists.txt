@@ -38,6 +38,17 @@ set(PROJECT_SOURCES
         ${MODEL_SOURCES}
 )
 
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+)
+
+if (WIN32)
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+endif (WIN32)
+
+FetchContent_MakeAvailable(googletest)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(calc.v2
@@ -51,6 +62,8 @@ endif()
 
 target_link_libraries(calc.v2 PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
+# add_custom_target(test )
+
 set_target_properties(calc.v2 PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
@@ -58,6 +71,22 @@ set_target_properties(calc.v2 PROPERTIES
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )
+
+enable_testing()
+
+add_executable(
+  TranslationTest
+  tests/TranslationTest.cc
+  ${MODEL_SOURCES}
+)
+
+target_link_libraries(
+  TranslationTest
+  GTest::gtest_main
+)
+
+include(GoogleTest)
+gtest_discover_tests(TranslationTest)
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(calc.v2)

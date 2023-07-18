@@ -145,7 +145,8 @@ namespace s21 {
   }
   
   bool Translator::ExprFinished(const std::string_view& last_token) const noexcept {
-    return kOperators.find(last_token) != std::string_view::npos || last_token.compare("(");
+    return kOperators.find(last_token.at(0)) == std::string_view::npos && 
+           last_token.compare("(");
   }
 
   void Translator::AdvancePosition() noexcept {
