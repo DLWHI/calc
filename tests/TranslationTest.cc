@@ -149,6 +149,12 @@ TEST(TranslationModel, case_add_brackets_7) {
   EXPECT_EQ(expected, to_string(returned));
 }
 
+TEST(TranslationModel, case_add_brackets_8) {
+  s21::Translator tr;
+  std::string expected = "sin(~(2+x*x-sin(0)))";
+  s21::list<std::string> returned = tr.Tokenize("sin-(2+xx-sin(0))");
+  EXPECT_EQ(expected, to_string(returned));
+}
 
 
 
@@ -222,6 +228,26 @@ TEST(TranslationModel, case_other_10) {
   EXPECT_EQ(expected, to_string(returned));
 }
 
+TEST(TranslationModel, case_other_11) {
+  s21::Translator tr;
+  std::string expected = "cos(~x)";
+  s21::list<std::string> returned = tr.Tokenize("cos(~x)");
+  EXPECT_EQ(expected, to_string(returned));
+}
+
+TEST(TranslationModel, case_other_12) {
+  s21::Translator tr;
+  std::string expected = "sin~(2+xx-sin(0))";
+  s21::list<std::string> returned = tr.Tokenize("sin~(2+xx-sin(0))");
+  EXPECT_EQ(expected, to_string(returned));
+}
+
+TEST(TranslationModel, case_other_13) {
+  s21::Translator tr;
+  std::string expected = "sin~(2~xx-sin(0))";
+  s21::list<std::string> returned = tr.Tokenize("sin~(2~xx-sin(0))"); // must fix
+  EXPECT_EQ(expected, to_string(returned));
+}
 
 
 TEST(TranslationModel, case_error_unfinished_1) {
@@ -249,6 +275,21 @@ TEST(TranslationModel, case_error_unfinished_5) {
   EXPECT_THROW(tr.Tokenize("sin+"), s21::bad_expression);
 }
 
+TEST(TranslationModel, case_error_unfinished_6) {
+  s21::Translator tr;
+  EXPECT_THROW(tr.Tokenize("2sin"), s21::bad_expression);
+}
+
+TEST(TranslationModel, case_error_unfinished_7) {
+  s21::Translator tr;
+  EXPECT_THROW(tr.Tokenize("xsin"), s21::bad_expression);
+}
+
+TEST(TranslationModel, case_error_unfinished_8) {
+  s21::Translator tr;
+  EXPECT_THROW(tr.Tokenize("sincos"), s21::bad_expression);
+}
+
 
 
 TEST(TranslationModel, case_error_mismatch_op_1) {
@@ -259,6 +300,11 @@ TEST(TranslationModel, case_error_mismatch_op_1) {
 TEST(TranslationModel, case_error_mismatch_op_2) {
   s21::Translator tr;
   EXPECT_THROW(tr.Tokenize("1+sin*2"), s21::bad_expression);
+}
+
+TEST(TranslationModel, case_error_mismatch_op_3) {
+  s21::Translator tr;
+  EXPECT_THROW(tr.Tokenize("cos-xcosx-sinxcos*sqrtsin-(1-xx+sqrt(1+cossin2x))"), s21::bad_expression);
 }
 
 
@@ -278,12 +324,14 @@ TEST(TranslationModel, case_error_brackets_broken_3) {
   EXPECT_THROW(tr.Tokenize("()"), s21::bad_expression);
 }
 
+TEST(TranslationModel, case_error_brackets_broken_4) {
+  s21::Translator tr;
+  EXPECT_THROW(tr.Tokenize("((cos(x-tgcos)sinsin(xsin(1-xx))+xcosx"), s21::bad_expression);
+}
+
 
 
 int main(int argc, char** argv) {
-  // std::cout << tr.Tokenize("2sin") << std::endl;
-  // std::cout << tr.Tokenize("xsin") << std::endl;
-  // std::cout << tr.Tokenize("sincos") << std::endl;
   ::testing::InitGoogleTest(&argc, argv);
 
   return RUN_ALL_TESTS();

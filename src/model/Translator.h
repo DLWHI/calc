@@ -6,10 +6,10 @@
 #include "../containers/s21_stack.h"
 
 // TODO:
-// - Add function completion (?)
+// - Fix already present unary operators
 // - Add mod/pow handling
 // - Add scientific notation handling
-
+// - Remove bad_expression for logic_error
 namespace s21 {
 class bad_expression final : public std::exception {
   public:
@@ -69,6 +69,8 @@ class Translator : public ITranslationModel  {
 
     void Fix(list<std::string>& dest) noexcept;
 
+    void CloseBracket() noexcept;
+    void MakeUnary(list<std::string>& dest) noexcept;
     bool PushToken(list<std::string>& dest) noexcept;
 
     void AdvancePosition() noexcept;
@@ -85,7 +87,7 @@ class Translator : public ITranslationModel  {
     constexpr bool BracketsBroken() const noexcept;    
     constexpr bool OneSymboled() const noexcept;
     constexpr bool IsNumeric(TokenType token) const noexcept;
-    bool ExprFinished(const std::string_view& last_token) const noexcept;
+    constexpr bool ExprFinished(TokenType last_token) const noexcept;
 
     TokenType prev_token_;
     TokenType current_token_;
