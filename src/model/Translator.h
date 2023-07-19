@@ -3,10 +3,10 @@
 
 #include "ITranslationModel.h"
 #include "../containers/array.h"
+#include "../containers/s21_stack.h"
 
 // TODO:
-// - Add unary operators
-// - Add empty brackets () handling
+// - Add function completion (?)
 // - Add mod/pow handling
 // - Add scientific notation handling
 
@@ -69,7 +69,6 @@ class Translator : public ITranslationModel  {
 
     void Fix(list<std::string>& dest) noexcept;
 
-    void PushBrackets(int count, list<std::string>& dest) noexcept;
     bool PushToken(list<std::string>& dest) noexcept;
 
     void AdvancePosition() noexcept;
@@ -79,10 +78,10 @@ class Translator : public ITranslationModel  {
 
     constexpr bool ValidState() const noexcept;
     constexpr bool MultiplySkipped() const noexcept;
+    constexpr bool UnaryOperator() const noexcept;
     constexpr bool FunctionEmpty() const noexcept;
     constexpr bool BracketSkipped() const noexcept;
     constexpr bool BracketFinished() const noexcept;
-    constexpr bool BracketNotOpened() const noexcept;
     constexpr bool BracketsBroken() const noexcept;    
     constexpr bool OneSymboled() const noexcept;
     constexpr bool IsNumeric(TokenType token) const noexcept;
@@ -91,8 +90,7 @@ class Translator : public ITranslationModel  {
     TokenType prev_token_;
     TokenType current_token_;
     State push_;
-    int unclosed_;
-    int bracket_;
+    stack<char> brackets_;
     position pos_;
     position end_;
 };

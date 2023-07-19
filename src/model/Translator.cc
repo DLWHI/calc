@@ -11,7 +11,6 @@ namespace s21 {
     end_ = expression.end();
     prev_token_ = TokenType::kUnknown;
     current_token_ = TokenType::kUnknown;
-    unclosed_ = bracket_ = 0;
     do {
       push_ = State::kPush;
       for (; pos_ != end_ && *pos_ == ' '; ++pos_) { }
@@ -19,21 +18,22 @@ namespace s21 {
       Fix(tokens);
     } while (PushToken(tokens) && ValidState());
     ThrowErrors(tokens.back().c_str());
-    if (bracket_ + unclosed_ > 0)
-      PushBrackets(bracket_ + unclosed_, tokens);
+    for (; !brackets_.empty(); brackets_.pop())
+      tokens.push_back(")");
     return tokens;
  }
 
   void Translator::Fix(list<std::string>& dest) noexcept {
     if (BracketSkipped()) {
       dest.push_back("(");
-      ++unclosed_;
+      brackets_.push(-')');
     } else if (BracketFinished()) {
-      PushBrackets(unclosed_, dest);
-      unclosed_ = 0;
+      // pop order matters
+      for (; !brackets_.empty() && brackets_.top() < 0; brackets_.pop())
+        dest.push_back(")");
     }
 
-    if (current_token_ == TokenType::kOperator && !IsNumeric(prev_token_)) {
+    if (UnaryOperator()) {
       push_ = State::kDiscard;
       if (*pos_ == '+')
         dest.push_back("#");
@@ -43,10 +43,14 @@ namespace s21 {
         push_ = State::kLonelyOperator;
       prev_token_ = current_token_;
     } else if (current_token_ == TokenType::kOpenBracket) {
-      ++bracket_;
+      brackets_.push(')');
     }
     else if (current_token_ == TokenType::kCloseBracket) {
-      --bracket_;
+      if (brackets_.empty()) {
+        push_ = State::kDiscard;
+      } else {
+        brackets_.pop();
+      }
     }
 
     if (MultiplySkipped()) {
@@ -56,15 +60,8 @@ namespace s21 {
     }
   }
 
-  void Translator::PushBrackets(int count, list<std::string>& dest) noexcept {
-    for (; count; --count)
-        dest.push_back(")");
-  }
-
   bool Translator::PushToken(list<std::string>& dest) noexcept
   {
-    if (pos_ == end_)
-      return false;
     position start = pos_;
     AdvancePosition();
     if (start == pos_)
@@ -73,7 +70,7 @@ namespace s21 {
       dest.push_back(std::string(start, pos_));
       prev_token_ = current_token_;
     }
-    return true;
+    return pos_ != end_;
   }
 
   Translator::TokenType Translator::GetTokenType(const position& symbol) const noexcept
@@ -105,6 +102,12 @@ namespace s21 {
            current_token_ == TokenType::kFunction);
   }
 
+  constexpr bool Translator::UnaryOperator() const noexcept {
+    return current_token_ == TokenType::kOperator && 
+           !IsNumeric(prev_token_) && 
+           prev_token_ != TokenType::kCloseBracket;
+  }
+
   constexpr bool Translator::FunctionEmpty() const noexcept {
     return prev_token_ == TokenType::kFunction && 
            !IsNumeric(current_token_);
@@ -116,20 +119,15 @@ namespace s21 {
   }
 
   constexpr bool Translator::BracketFinished() const noexcept {
-    return (current_token_ == TokenType::kOperator ||
-           current_token_ == TokenType::kOpenBracket ||
-           current_token_ == TokenType::kFunction) &&
-           prev_token_ != TokenType::kFunction && 
-           (unclosed_ + bracket_) == 1;
-  }
-
-  constexpr bool Translator::BracketNotOpened() const noexcept {
-    return current_token_ == TokenType::kCloseBracket && bracket_ < 0;
+    return !IsNumeric(current_token_) &&
+           prev_token_ != TokenType::kFunction;
   }
 
   constexpr bool Translator::BracketsBroken() const noexcept {
-    return (prev_token_ == TokenType::kOperator || prev_token_ == TokenType::kFunction) 
-           && current_token_ == TokenType::kCloseBracket;
+    return (prev_token_ == TokenType::kOperator || 
+           prev_token_ == TokenType::kFunction || 
+           prev_token_ == TokenType::kOpenBracket) &&
+           current_token_ == TokenType::kCloseBracket;
   }
 
   constexpr bool Translator::OneSymboled() const noexcept {
@@ -150,11 +148,7 @@ namespace s21 {
   }
 
   void Translator::AdvancePosition() noexcept {
-    if (bracket_ < 0) {
-      for (; pos_ != end_ && *pos_ == ')'; ++pos_) { };
-      push_ = State::kDiscard;
-      bracket_ = 0;
-    } else if (OneSymboled()) {
+    if (OneSymboled()) {
       ++pos_;
     } else if (current_token_ == TokenType::kFunction) {
       std::size_t rem = std::distance(pos_, end_);

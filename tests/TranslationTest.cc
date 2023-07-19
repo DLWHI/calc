@@ -8,13 +8,6 @@ std::string to_string(s21::list<std::string> tokens) {
   return result;
 }
 
-TEST(TranslationModel, case_incomplete_function_1) {
-  s21::Translator tr;
-  std::string expected = "1+sin(~2)";
-  s21::list<std::string> returned = tr.Tokenize("1+sin-2");
-  EXPECT_EQ(expected, to_string(returned));
-}
-
 
 
 TEST(TranslationModel, case_missed_multp_1) {
@@ -149,6 +142,14 @@ TEST(TranslationModel, case_add_brackets_6) {
   EXPECT_EQ(expected, to_string(returned));
 }
 
+TEST(TranslationModel, case_add_brackets_7) {
+  s21::Translator tr;
+  std::string expected = "1+sin(~2)";
+  s21::list<std::string> returned = tr.Tokenize("1+sin-2");
+  EXPECT_EQ(expected, to_string(returned));
+}
+
+
 
 
 TEST(TranslationModel, case_other_1) {
@@ -209,8 +210,15 @@ TEST(TranslationModel, case_other_8) {
 
 TEST(TranslationModel, case_other_9) {
   s21::Translator tr;
-  std::string expected = "((cos(x-tg(cos(sin(sin(x*sin(1-x*x)))))+xcosx)))";
+  std::string expected = "((cos(x-tg(cos(sin(sin(x*sin(1-x*x)))))+x*cos(x))))";
   s21::list<std::string> returned = tr.Tokenize("((cos(x-tgcossinsin(xsin(1-xx))+xcosx");
+  EXPECT_EQ(expected, to_string(returned));
+}
+
+TEST(TranslationModel, case_other_10) {
+  s21::Translator tr;
+  std::string expected = "cos(x)-tg(cos(sin(sin(x*sin(1-x*x)))))+x*cos(x)";
+  s21::list<std::string> returned = tr.Tokenize("cosx-tgcossinsin(xsin(1-xx))+xcosx");
   EXPECT_EQ(expected, to_string(returned));
 }
 
@@ -265,11 +273,17 @@ TEST(TranslationModel, case_error_brackets_broken_2) {
   EXPECT_THROW(tr.Tokenize("(1+)x"), s21::bad_expression);
 }
 
+TEST(TranslationModel, case_error_brackets_broken_3) {
+  s21::Translator tr;
+  EXPECT_THROW(tr.Tokenize("()"), s21::bad_expression);
+}
+
+
+
 int main(int argc, char** argv) {
   // std::cout << tr.Tokenize("2sin") << std::endl;
   // std::cout << tr.Tokenize("xsin") << std::endl;
   // std::cout << tr.Tokenize("sincos") << std::endl;
-  // std::cout << tr.Tokenize("()") << std::endl;
   ::testing::InitGoogleTest(&argc, argv);
 
   return RUN_ALL_TESTS();
