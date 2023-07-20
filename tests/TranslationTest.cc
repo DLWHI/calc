@@ -158,6 +158,136 @@ TEST(TranslationModel, case_add_brackets_8) {
 
 
 
+TEST(TranslationModel, case_operators_1) {
+  s21::Translator tr;
+  std::string expected = "x*~2";
+  s21::list<std::string> returned = tr.Tokenize("x*-2");
+  EXPECT_EQ(expected, to_string(returned));
+}
+
+TEST(TranslationModel, case_operators_2) {
+  s21::Translator tr;
+  std::string expected = "3+~4";
+  s21::list<std::string> returned = tr.Tokenize("3+-4");
+  EXPECT_EQ(expected, to_string(returned));
+}
+
+TEST(TranslationModel, case_operators_3) {
+  s21::Translator tr;
+  std::string expected = "3-#4";
+  s21::list<std::string> returned = tr.Tokenize("3-+4");
+  EXPECT_EQ(expected, to_string(returned));
+}
+
+TEST(TranslationModel, case_operators_4) {
+  s21::Translator tr;
+  std::string expected = "3-~~4";
+  s21::list<std::string> returned = tr.Tokenize("3---4");
+  EXPECT_EQ(expected, to_string(returned));
+}
+
+TEST(TranslationModel, case_operators_5) {
+  s21::Translator tr;
+  std::string expected = "~3*~4";
+  s21::list<std::string> returned = tr.Tokenize("-3*-4");
+  EXPECT_EQ(expected, to_string(returned));
+}
+
+TEST(TranslationModel, case_operators_6) {
+  s21::Translator tr;
+  std::string expected = "2%3";
+  s21::list<std::string> returned = tr.Tokenize("2%3");
+  EXPECT_EQ(expected, to_string(returned));
+}
+
+TEST(TranslationModel, case_operators_7) {
+  s21::Translator tr;
+  std::string expected = "2%3";
+  s21::list<std::string> returned = tr.Tokenize(" 2  %    3");
+  EXPECT_EQ(expected, to_string(returned));
+}
+
+TEST(TranslationModel, case_operators_8) {
+  s21::Translator tr;
+  std::string expected = "x^x";
+  s21::list<std::string> returned = tr.Tokenize("x^x");
+  EXPECT_EQ(expected, to_string(returned));
+}
+
+TEST(TranslationModel, case_operators_9) {
+  s21::Translator tr;
+  std::string expected = "8^~2";
+  s21::list<std::string> returned = tr.Tokenize("8^-2");
+  EXPECT_EQ(expected, to_string(returned));
+}
+
+TEST(TranslationModel, case_operators_10) {
+  s21::Translator tr;
+  std::string expected = "3%2";
+  s21::list<std::string> returned = tr.Tokenize("3%2");
+  EXPECT_EQ(expected, to_string(returned));
+}
+
+TEST(TranslationModel, case_operators_11) {
+  s21::Translator tr;
+  std::string expected = "3%~.32";
+  s21::list<std::string> returned = tr.Tokenize("3%-.32");
+  EXPECT_EQ(expected, to_string(returned));
+}
+
+TEST(TranslationModel, case_operators_12) {
+  s21::Translator tr;
+  std::string expected = "exp(3)/x/3.141";
+  s21::list<std::string> returned = tr.Tokenize("exp(3)/x/3.141");
+  EXPECT_EQ(expected, to_string(returned));
+}
+
+TEST(TranslationModel, case_operators_13) {
+  s21::Translator tr;
+  std::string expected = "3-#~4";
+  s21::list<std::string> returned = tr.Tokenize("3-+-4");
+  EXPECT_EQ(expected, to_string(returned));
+}
+
+
+
+TEST(TranslationModel, case_scientific_1) {
+  s21::Translator tr;
+  std::string expected = "3e8";
+  s21::list<std::string> returned = tr.Tokenize("3e8");
+  EXPECT_EQ(expected, to_string(returned));
+}
+
+TEST(TranslationModel, case_scientific_2) {
+  s21::Translator tr;
+  std::string expected = "1.6e-19";
+  s21::list<std::string> returned = tr.Tokenize("1.6e-19");
+  EXPECT_EQ(expected, to_string(returned));
+}
+
+TEST(TranslationModel, case_scientific_3) {
+  s21::Translator tr;
+  std::string expected = "9.1e-31*1.6e-19";
+  s21::list<std::string> returned = tr.Tokenize("9.1e-31*1.6e-19");
+  EXPECT_EQ(expected, to_string(returned));
+}
+
+TEST(TranslationModel, case_scientific_4) {
+  s21::Translator tr;
+  std::string expected = "exp(~9.1e-31*x*x/(2*1.38e-23*10e6))";
+  s21::list<std::string> returned = tr.Tokenize("exp(-9.1e-31*xx/(2*1.38e-23*10e6))");
+  EXPECT_EQ(expected, to_string(returned));
+}
+
+TEST(TranslationModel, case_scientific_5) {
+  s21::Translator tr;
+  std::string expected = "sin(3.14e-0)";
+  s21::list<std::string> returned = tr.Tokenize("sin(3.14e-0)");
+  EXPECT_EQ(expected, to_string(returned));
+}
+
+
+
 TEST(TranslationModel, case_other_1) {
   s21::Translator tr;
   std::string expected = "22";
@@ -237,103 +367,138 @@ TEST(TranslationModel, case_other_11) {
 
 TEST(TranslationModel, case_other_12) {
   s21::Translator tr;
-  std::string expected = "sin~(2+xx-sin(0))";
+  std::string expected = "sin(~(2+x*x-sin(0)))";
   s21::list<std::string> returned = tr.Tokenize("sin~(2+xx-sin(0))");
   EXPECT_EQ(expected, to_string(returned));
 }
 
 TEST(TranslationModel, case_other_13) {
   s21::Translator tr;
-  std::string expected = "sin~(2~xx-sin(0))";
-  s21::list<std::string> returned = tr.Tokenize("sin~(2~xx-sin(0))"); // must fix
+  std::string expected = "sin(~(2-x*x-sin(0)))";
+  s21::list<std::string> returned = tr.Tokenize("sin~(2~xx-sin(0))");
   EXPECT_EQ(expected, to_string(returned));
 }
 
 
 TEST(TranslationModel, case_error_unfinished_1) {
   s21::Translator tr;
-  EXPECT_THROW(tr.Tokenize("++"), s21::bad_expression);
+  EXPECT_THROW(tr.Tokenize("++"), std::logic_error);
 }
 
 TEST(TranslationModel, case_error_unfinished_2) {
   s21::Translator tr;
-  EXPECT_THROW(tr.Tokenize("2("), s21::bad_expression);
+  EXPECT_THROW(tr.Tokenize("2("), std::logic_error);
 }
 
 TEST(TranslationModel, case_error_unfinished_3) {
   s21::Translator tr;
-  EXPECT_THROW(tr.Tokenize(")("), s21::bad_expression);
+  EXPECT_THROW(tr.Tokenize(")("), std::logic_error);
 }
 
 TEST(TranslationModel, case_error_unfinished_4) {
   s21::Translator tr;
-  EXPECT_THROW(tr.Tokenize("sin(x)("), s21::bad_expression);
+  EXPECT_THROW(tr.Tokenize("sin(x)("), std::logic_error);
 }
 
 TEST(TranslationModel, case_error_unfinished_5) {
   s21::Translator tr;
-  EXPECT_THROW(tr.Tokenize("sin+"), s21::bad_expression);
+  EXPECT_THROW(tr.Tokenize("sin+"), std::logic_error);
 }
 
 TEST(TranslationModel, case_error_unfinished_6) {
   s21::Translator tr;
-  EXPECT_THROW(tr.Tokenize("2sin"), s21::bad_expression);
+  EXPECT_THROW(tr.Tokenize("2sin"), std::logic_error);
 }
 
 TEST(TranslationModel, case_error_unfinished_7) {
   s21::Translator tr;
-  EXPECT_THROW(tr.Tokenize("xsin"), s21::bad_expression);
+  EXPECT_THROW(tr.Tokenize("xsin"), std::logic_error);
 }
 
 TEST(TranslationModel, case_error_unfinished_8) {
   s21::Translator tr;
-  EXPECT_THROW(tr.Tokenize("sincos"), s21::bad_expression);
+  EXPECT_THROW(tr.Tokenize("sincos"), std::logic_error);
 }
 
 
 
 TEST(TranslationModel, case_error_mismatch_op_1) {
   s21::Translator tr;
-  EXPECT_THROW(tr.Tokenize("(*1+3"), s21::bad_expression);
+  EXPECT_THROW(tr.Tokenize("(*1+3"), std::logic_error);
 }
 
 TEST(TranslationModel, case_error_mismatch_op_2) {
   s21::Translator tr;
-  EXPECT_THROW(tr.Tokenize("1+sin*2"), s21::bad_expression);
+  EXPECT_THROW(tr.Tokenize("1+sin*2"), std::logic_error);
 }
 
 TEST(TranslationModel, case_error_mismatch_op_3) {
   s21::Translator tr;
-  EXPECT_THROW(tr.Tokenize("cos-xcosx-sinxcos*sqrtsin-(1-xx+sqrt(1+cossin2x))"), s21::bad_expression);
+  EXPECT_THROW(tr.Tokenize("cos-xcosx-sinxcos*sqrtsin-(1-xx+sqrt(1+cossin2x))"), std::logic_error);
+}
+
+TEST(TranslationModel, case_error_mismatch_op_4) {
+  s21::Translator tr;
+  EXPECT_THROW(tr.Tokenize("3-mod-.32"), std::logic_error);
+}
+
+TEST(TranslationModel, case_error_mismatch_op_5) {
+  s21::Translator tr;
+  EXPECT_THROW(tr.Tokenize("sin(+-+)"), std::logic_error);
 }
 
 
 
 TEST(TranslationModel, case_error_brackets_broken_1) {
   s21::Translator tr;
-  EXPECT_THROW(tr.Tokenize("(sin)x"), s21::bad_expression);
+  EXPECT_THROW(tr.Tokenize("(sin)x"), std::logic_error);
 }
 
 TEST(TranslationModel, case_error_brackets_broken_2) {
   s21::Translator tr;
-  EXPECT_THROW(tr.Tokenize("(1+)x"), s21::bad_expression);
+  EXPECT_THROW(tr.Tokenize("(1+)x"), std::logic_error);
 }
 
 TEST(TranslationModel, case_error_brackets_broken_3) {
   s21::Translator tr;
-  EXPECT_THROW(tr.Tokenize("()"), s21::bad_expression);
+  EXPECT_THROW(tr.Tokenize("()"), std::logic_error);
 }
 
 TEST(TranslationModel, case_error_brackets_broken_4) {
   s21::Translator tr;
-  EXPECT_THROW(tr.Tokenize("((cos(x-tgcos)sinsin(xsin(1-xx))+xcosx"), s21::bad_expression);
+  EXPECT_THROW(tr.Tokenize("((cos(x-tgcos)sinsin(xsin(1-xx))+xcosx"), std::logic_error);
 }
 
 
+// caught at calculation
+// TEST(TranslationModel, case_broken_scientific_1) {
+//   s21::Translator tr;
+//   EXPECT_THROW(tr.Tokenize("2e"), std::logic_error);
+// }
+
+// TEST(TranslationModel, case_broken_scientific_2) {
+//   s21::Translator tr;
+//   EXPECT_THROW(tr.Tokenize("2.2e+sinx"), std::logic_error);
+// }
+
+// TEST(TranslationModel, case_broken_scientific_3) {
+//   s21::Translator tr;
+//   std::cout << to_string(tr.Tokenize("2.2esinx")) << std::endl;
+//   EXPECT_THROW(tr.Tokenize("2.2esinx"), std::logic_error);
+// }
+
+// TEST(TranslationModel, case_broken_scientific_4) {
+//   s21::Translator tr;
+//   EXPECT_THROW(tr.Tokenize("2.2e-xx"), std::logic_error);
+// }
+
+// TEST(TranslationModel, case_broken_scientific_5) {
+//   s21::Translator tr;
+//   EXPECT_THROW(tr.Tokenize("2.2e*10"), std::logic_error);
+// }
 
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
-
   return RUN_ALL_TESTS();
 }
 
