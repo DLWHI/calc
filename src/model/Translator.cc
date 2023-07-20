@@ -1,5 +1,5 @@
 #include "Translator.h"
-#include <iostream>
+
 namespace s21 {
   // TODO:
   //  - Refactor in future
@@ -16,8 +16,9 @@ namespace s21 {
       else if (current == TokenType::kOperator) {
         while (!op_stack.empty() && 
                GetPriority(token.at(0)) <= GetPriority(op_stack.top().at(0)) &&
-               IsLeftwise(token.at(0)))
+               IsLeftwise(token.at(0))) {
           MoveToStack(op_stack, postfix);
+        }
         op_stack.push(token);
       } else if (current == TokenType::kCloseBracket) {
         while (!op_stack.empty() && 
@@ -59,7 +60,7 @@ namespace s21 {
     return tokens;
  }
 
-  void Translator::Fix(list<std::string>& dest) noexcept {
+  void Translator::Fix(list<std::string>& dest) {
     if (BracketSkipped()) {
       dest.push_back("(");
       brackets_.push(-')');
@@ -92,7 +93,7 @@ namespace s21 {
     }
   }
 
-  void Translator::CollapseOperator(list<std::string>& dest) noexcept {
+  void Translator::CollapseOperator(list<std::string>& dest) {
     push_ = State::kDiscard;
     if (OpBinary(pos_)) {
         dest.push_back(std::string(1, OpBinary(pos_)));
@@ -104,7 +105,7 @@ namespace s21 {
     prev_token_ = current_token_;
   }
 
-  bool Translator::PushToken(list<std::string>& dest) noexcept
+  bool Translator::PushToken(list<std::string>& dest)
   {
     position start = pos_;
     AdvancePosition();
@@ -236,6 +237,7 @@ namespace s21 {
       throw std::logic_error("Expression is not finished");
   }
 
+
   constexpr int Translator::GetPriority(char op) const noexcept {
     if (op == '+' || op == '-')
       return 0;
@@ -251,4 +253,4 @@ namespace s21 {
   constexpr bool Translator::IsLeftwise(char op) const noexcept { 
     return op != '^' && op != '~' && op != '#';
   }
-}
+}  // namespace s21

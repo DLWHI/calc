@@ -75,18 +75,18 @@ set_target_properties(calc.v2 PROPERTIES
 enable_testing()
 
 add_executable(
-  TranslationTest
-  tests/TranslationTest.cc
+  TranslationFixerTest
+  tests/TranslationFixerTest.cc
   ${MODEL_SOURCES}
 )
 
 target_link_libraries(
-  TranslationTest
+  TranslationFixerTest
   GTest::gtest_main
 )
 
 include(GoogleTest)
-gtest_discover_tests(TranslationTest)
+gtest_discover_tests(TranslationFixerTest)
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(calc.v2)

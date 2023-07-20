@@ -7,15 +7,19 @@
 namespace s21 {
 class Calculator: public ICalculationModel  {
   public:
-    double calculate();
-    vector<double> calculate_set(const vector<double>& points);
-    
-    vector<double> generate_set(double l, double r);
+    double Calculate() const;
 
-    void setExpression(const vector<std::string>& expr);
+    vector<double> CalculateSet(const vector<double>& points) const;
+    vector<double> CalculateSet(double l, double r) const;
+
+    vector<double> GenerateSet(double l, double r) const;
+
+    void setExpression(const list<std::string>& expr) { expression = expr;};
   protected:
-    std::string expression;
+    void Operate(const std::string& operation, stack<double>& calc_stack) const;
+
+    list<std::string> expression;
 };
-}
+}  // namespace s21
 
 #endif  // SRC_MODEL_CALCULATOR_H_

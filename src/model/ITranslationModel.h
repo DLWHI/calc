@@ -11,6 +11,6 @@ class ITranslationModel {
     virtual list<std::string> Translate(const list<std::string>& tokens) const = 0;
     virtual list<std::string> Tokenize(const std::string_view& expression) = 0;
 };
-}
+}  // namespace s21
 
 #endif  // SRC_MODEL_I_TRANSLATION_MODEL_H_

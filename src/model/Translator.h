@@ -59,11 +59,10 @@ class Translator : public ITranslationModel  {
     void Fix(list<std::string>& dest) noexcept;
 
     void CloseBracket() noexcept;
-    void CollapseOperator(list<std::string>& dest) noexcept;
-    bool PushToken(list<std::string>& dest) noexcept;
+    void CollapseOperator(list<std::string>& dest);
+    bool PushToken(list<std::string>& dest);
 
     void AdvancePosition() noexcept;
-    bool IsDigit() const noexcept;
     void ThrowErrors(const std::string_view& last_token) const;
 
     TokenType GetTokenType(char symbol) const noexcept;
@@ -96,6 +95,6 @@ class Translator : public ITranslationModel  {
     position pos_;
     position end_;
 };
-}
+}  // namespace s21
 
 #endif  // SRC_MODEL_TRANSLATOR_H_
