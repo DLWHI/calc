@@ -8,7 +8,7 @@
 #include "iterator.h"
 
 namespace s21 {
-typedef int64_t size_t;
+typedef uint32_t size_t;
 
 // I question this variant of array implementation, but this implementation
 // is almost same as std::array.

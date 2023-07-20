@@ -21,7 +21,10 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(MODEL_SOURCES 
-    src/model/translator.cc)
+    src/model/Tokenizer.cc
+    src/model/Translator.cc
+    src/model/Calculator.cc
+)
 
 set(CONTROLLER_SOURCES 
         )
@@ -35,7 +38,7 @@ set(VIEW_SOURCES
 set(PROJECT_SOURCES
         main.cpp
         ${VIEW_SOURCES}
-        ${MODEL_SOURCES}
+        ${CONTROLLER_SOURCES}
 )
 
 include(FetchContent)
@@ -60,9 +63,9 @@ else()
         ${PROJECT_SOURCES})
 endif()
 
-target_link_libraries(calc.v2 PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+add_library(model ${MODEL_SOURCES})
 
-# add_custom_target(test )
+target_link_libraries(calc.v2 PRIVATE model Qt${QT_VERSION_MAJOR}::Widgets)
 
 set_target_properties(calc.v2 PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
@@ -75,18 +78,31 @@ set_target_properties(calc.v2 PROPERTIES
 enable_testing()
 
 add_executable(
-  TranslationFixerTest
-  tests/TranslationFixerTest.cc
-  ${MODEL_SOURCES}
+  tokenizer_test
+  tests/TokenizerTest.cc
+  src/model/Tokenizer.cc
 )
 
 target_link_libraries(
-  TranslationFixerTest
+  tokenizer_test
+  model
+  GTest::gtest_main
+)
+
+add_executable(
+  model_integration
+  tests/ModelTest.cc
+)
+
+target_link_libraries(
+  model_integration
+  model
   GTest::gtest_main
 )
 
 include(GoogleTest)
-gtest_discover_tests(TranslationFixerTest)
+gtest_discover_tests(tokenizer_test)
+gtest_discover_tests(model_integration)
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(calc.v2)

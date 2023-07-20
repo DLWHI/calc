@@ -1,24 +1,59 @@
 #ifndef SRC_MODEL_CALCULATOR_H_
 #define SRC_MODEL_CALCULATOR_H_
+#include <cmath>
 #include <stdexcept>
 
-#include "ICalculationModel.h"
+#include "Tokenizer.h"
+#include "../containers/s21_list.h"
+#include "../containers/s21_stack.h"
+#include "../containers/s21_map.h"
 
 namespace s21 {
-class Calculator: public ICalculationModel  {
+class Calculator final {
   public:
-    double Calculate() const;
+    Calculator() : kUnaryFunctions({
+      std::pair("#", [](double x) { return x;}),
+      std::pair("~", [](double x) { return -x;}),
+      std::pair("tg", tan),
+      std::pair("sin", sin),
+      std::pair("cos", cos),
+      std::pair("tan", tan),
+      std::pair("ctg", [](double x) { return 1/tan(x);}),
+      std::pair("cot", [](double x) { return 1/tan(x);}),
+      std::pair("exp", exp),
+      std::pair("atg", atan),
+      std::pair("asin", asin),
+      std::pair("acos", acos),
+      std::pair("atan", atan),
+      std::pair("acot", [](double x) { return M_PI_2 - atan(x);}),
+      std::pair("actg", [](double x) { return M_PI_2 - atan(x);}),
+      std::pair("sqrt", sqrt)
+    }), kBinaryFunctions({
+      std::pair("^", pow),
+      std::pair("%", fmod),
+      std::pair("+", [](double lhs, double rhs) { return lhs + rhs;}),
+      std::pair("-", [](double lhs, double rhs) { return lhs - rhs;}),
+      std::pair("*", [](double lhs, double rhs) { return lhs * rhs;}),
+      std::pair("/", [](double lhs, double rhs) { return lhs / rhs;})
+    }) { };
 
-    vector<double> CalculateSet(const vector<double>& points) const;
-    vector<double> CalculateSet(double l, double r) const;
+    typedef Tokenizer::TokenType TokenType;
+    
+    double Calculate(const list<std::string>& expr, double x = 0);
+  private:
+    map<std::string_view, std::function<double(double)>> kUnaryFunctions;
+    map<std::string_view, std::function<double(double, double)>> kBinaryFunctions;
 
-    vector<double> GenerateSet(double l, double r) const;
+    void Operate(const std::string_view& operation);
 
-    void setExpression(const list<std::string>& expr) { expression = expr;};
-  protected:
-    void Operate(const std::string& operation, stack<double>& calc_stack) const;
+    double StackPop() {
+      double val = calc_stack_.top();
+      calc_stack_.pop();
+      return val;
+    }
 
-    list<std::string> expression;
+    TokenType current_token_;
+    stack<double> calc_stack_;
 };
 }  // namespace s21
 
