@@ -1,8 +1,39 @@
 #include "Translator.h"
 #include <iostream>
 namespace s21 {
+  // TODO:
+  //  - Refactor in future
   list<std::string> Translator::Translate(const list<std::string>& tokens) const {
-
+    stack<std::string> op_stack;
+    list<std::string> postfix;
+    TokenType current;
+    for (auto token: tokens) {
+      current = GetTokenType(token.at(0));
+      if (IsNumeric(current))
+        postfix.push_back(token);
+      else if (current == TokenType::kFunction || current == TokenType::kOpenBracket)
+        op_stack.push(token);
+      else if (current == TokenType::kOperator) {
+        while (!op_stack.empty() && 
+               GetPriority(token.at(0)) <= GetPriority(op_stack.top().at(0)) &&
+               IsLeftwise(token.at(0)))
+          MoveToStack(op_stack, postfix);
+        op_stack.push(token);
+      } else if (current == TokenType::kCloseBracket) {
+        while (!op_stack.empty() && 
+               GetTokenType(op_stack.top().at(0)) != TokenType::kOpenBracket) {
+          MoveToStack(op_stack, postfix);
+        }
+        op_stack.pop();
+        if (!op_stack.empty() && 
+            GetTokenType(op_stack.top().at(0)) == TokenType::kFunction)
+          MoveToStack(op_stack,postfix);
+      }
+    }
+    while (!op_stack.empty()) {
+      MoveToStack(op_stack,postfix);
+    }
+    return postfix;
   }
 
   list<std::string> Translator::Tokenize(const std::string_view& expression) {
@@ -16,10 +47,10 @@ namespace s21 {
     end_ = expression.end();
     prev_token_ = TokenType::kUnknown;
     current_token_ = TokenType::kUnknown;
+    for (; pos_ != end_ && *pos_ == ' '; ++pos_) { }
     do {
       push_ = State::kPush;
-      for (; pos_ != end_ && *pos_ == ' '; ++pos_) { }
-      current_token_ = GetTokenType(pos_);
+      current_token_ = GetTokenType(*pos_);
       Fix(tokens);
     } while (PushToken(tokens) && ValidState());
     ThrowErrors(tokens.back().c_str());
@@ -83,22 +114,23 @@ namespace s21 {
       dest.push_back(std::string(start, pos_));
       prev_token_ = current_token_;
     }
+    for (; pos_ != end_ && *pos_ == ' '; ++pos_) { }
     return pos_ != end_;
   }
 
-  Translator::TokenType Translator::GetTokenType(const position& symbol) const noexcept
+  Translator::TokenType Translator::GetTokenType(char symbol) const noexcept
   {
-    if (('0' <= *symbol && *symbol <= '9') || *symbol == '.')
+    if (('0' <= symbol && symbol <= '9') || symbol == '.')
       return TokenType::kDigit;
-    else if (kOperators.find(*symbol) + 1)
+    else if (kOperators.find(symbol) + 1)
       return TokenType::kOperator;
-    else if (*symbol == '(')
+    else if (symbol == '(')
       return TokenType::kOpenBracket;
-    else if (*symbol == ')')
+    else if (symbol == ')')
       return TokenType::kCloseBracket;
-    else if (*symbol == 'x' || *symbol == 'X' || *symbol == 'y' || *symbol == 'Y')
+    else if (symbol == 'x' || symbol == 'X' || symbol == 'y' || symbol == 'Y')
       return TokenType::kArg;
-    else if (*symbol == ' ' || !*symbol)
+    else if (symbol == ' ' || !symbol)
       return TokenType::kUnknown;
     return TokenType::kFunction;
   }
@@ -183,12 +215,12 @@ namespace s21 {
             func->compare(std::string_view(pos_, std::min(func->size(), rem))); ++func) { }
       pos_ += std::min(func->size(), rem);
     } else {
-      for (; pos_ != end_ && (GetTokenType(pos_) == TokenType::kDigit); ++pos_) { };
+      for (; pos_ != end_ && (GetTokenType(*pos_) == TokenType::kDigit); ++pos_) { };
       if (pos_ != end_ && *pos_ == 'e') {
         ++pos_;
         if (pos_ != end_ && (*pos_ == '+' || *pos_ == '-'))
           ++pos_;
-        for (; pos_ != end_ && (GetTokenType(pos_) == TokenType::kDigit); ++pos_) { };
+        for (; pos_ != end_ && (GetTokenType(*pos_) == TokenType::kDigit); ++pos_) { };
       }
     }
   }
@@ -197,10 +229,26 @@ namespace s21 {
     if (push_ == State::kBrokenBrackets)
       throw std::logic_error("Expression has broken brackets");
     else if (push_ == State::kFunctionErr)
-      throw std::logic_error("Expression unknown function");
+      throw std::logic_error("Expression has unknown function");
     else if (push_ == State::kLonelyOperator)
       throw std::logic_error("Expression has mismatched operator");
-    else if (!ExprFinished(GetTokenType(last_token.begin())))
+    else if (!ExprFinished(GetTokenType(*last_token.begin())))
       throw std::logic_error("Expression is not finished");
+  }
+
+  constexpr int Translator::GetPriority(char op) const noexcept {
+    if (op == '+' || op == '-')
+      return 0;
+    else if (op == '*' || op == '/' || op == '%')
+      return 1;
+    else if (op == '~' || op == '#')
+      return 2;
+    else if (op == '^')
+      return 3;
+    return -1;
+  }
+
+  constexpr bool Translator::IsLeftwise(char op) const noexcept { 
+    return op != '^' && op != '~' && op != '#';
   }
 }

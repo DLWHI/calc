@@ -5,6 +5,10 @@
 #include "../containers/array.h"
 #include "../containers/s21_stack.h"
 
+// Consider doing list:
+//  - Move fixer into seperate unit and make translator depend on it
+//  - Add multi-argument function handling
+
 namespace s21 {
 class Translator : public ITranslationModel  {
   public:
@@ -62,7 +66,7 @@ class Translator : public ITranslationModel  {
     bool IsDigit() const noexcept;
     void ThrowErrors(const std::string_view& last_token) const;
 
-    TokenType GetTokenType(const position& pos) const noexcept;
+    TokenType GetTokenType(char symbol) const noexcept;
     char OpUnary(const position& op) const noexcept;
     char OpBinary(const position& op) const noexcept;
 
@@ -75,6 +79,15 @@ class Translator : public ITranslationModel  {
     constexpr bool OneSymboled() const noexcept;
     constexpr bool IsNumeric(TokenType token) const noexcept;
     constexpr bool ExprFinished(TokenType last_token) const noexcept;
+
+
+    void MoveToStack(stack<std::string>& src, list<std::string>& dest) const {
+      dest.push_back(src.top());
+      src.pop();
+    }
+
+    constexpr int GetPriority(char op) const noexcept;
+    constexpr bool IsLeftwise(char op) const noexcept;
 
     TokenType prev_token_;
     TokenType current_token_;

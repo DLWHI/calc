@@ -7,8 +7,10 @@ class ICalculationModel {
   public:
     virtual double calculate() = 0;
     virtual vector<double> calculate_set(const vector<double>& points) = 0;
+
+    virtual vector<double> calculate_set(double l, double r) = 0;
     
-    virtual vector<double> generate_set(double l, double r) = 0;
+    virtual vector<double> generate_set(double l, double r, int fin) = 0;
 
     virtual void setExpression(const vector<std::string>& expr) = 0;
 };

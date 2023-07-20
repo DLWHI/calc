@@ -113,8 +113,12 @@ class list {
 
   iterator end() { return iterator(&head_); }
 
+  const_iterator begin() const { return const_iterator(&head_) + 1; }
+
+  const_iterator end() const { return const_iterator(&head_); }
+
   //  List Capacity:  ---------------------------------------------------------
-  bool empty() {
+  bool empty() const {
     if (this->counter_ == 0) {
       return 1;
     }
@@ -334,9 +338,9 @@ class list {
       return *this;
     }
 
-    bool operator==(const iterator other) { return ptr_ == other.ptr_; }
+    bool operator==(const ListIterator& other) const { return ptr_ == other.ptr_; }
 
-    bool operator!=(const iterator other) { return ptr_ != other.ptr_; }
+    bool operator!=(const ListIterator& other) const { return ptr_ != other.ptr_; }
 
     //  - int overload used in insert:
     ListIterator operator-(int k) {
@@ -359,8 +363,8 @@ class list {
     operator ListIterator<const TI>() const {
       return ListIterator<const TI>(ptr_);
     }
-
-    T& operator*() { return ptr_->data; }
+    
+    const T& operator*() const { return ptr_->data; }
 
    private:
     TI* ptr_;
