@@ -32,8 +32,8 @@ namespace s21 {
         dest.push_back(")");
     }
 
-    if (UnaryOperator()) {
-      MakeUnary(dest);
+    if (current_token_ == TokenType::kOperator) {
+      CollapseOperator(dest);
     } else if (current_token_ == TokenType::kOpenBracket) {
       brackets_.push(')');
     }
@@ -56,14 +56,15 @@ namespace s21 {
     }
   }
 
-  void Translator::MakeUnary(list<std::string>& dest) noexcept {
+  void Translator::CollapseOperator(list<std::string>& dest) noexcept {
     push_ = State::kDiscard;
-    if (*pos_ == '+')
-      dest.push_back("#");
-    else if (*pos_ == '-')
-      dest.push_back("~");
-    else
+    if (OpBinary(pos_)) {
+        dest.push_back(std::string(1, OpBinary(pos_)));
+    } else if (OpUnary(pos_)) {
+        dest.push_back(std::string(1, OpUnary(pos_)));
+    } else {
       push_ = State::kLonelyOperator;
+    }
     prev_token_ = current_token_;
   }
 
@@ -84,7 +85,7 @@ namespace s21 {
   {
     if (('0' <= *symbol && *symbol <= '9') || *symbol == '.')
       return TokenType::kDigit;
-    else if (kOperators.find(*symbol) != std::string_view::npos)
+    else if (kOperators.find(*symbol) + 1)
       return TokenType::kOperator;
     else if (*symbol == '(')
       return TokenType::kOpenBracket;
@@ -97,6 +98,24 @@ namespace s21 {
     return TokenType::kFunction;
   }
 
+  char Translator::OpUnary(const position& op) const noexcept {
+    if (*op == '+' || *op == '#')
+      return '#';
+    else if (*op == '-' || *op == '~')
+      return '~';
+    return '\0';
+  }
+
+  char Translator::OpBinary(const position& op) const noexcept {
+    if (!IsNumeric(prev_token_) && prev_token_ != TokenType::kCloseBracket)
+      return '\0';
+    if (*op == '+' || *op == '#')
+      return '+';
+    else if (*op == '-' || *op == '~')
+      return '-';
+    return *op;
+  }
+
   constexpr bool Translator::ValidState() const noexcept {
     return push_ == State::kPush || push_ == State::kDiscard;
   }
@@ -107,12 +126,6 @@ namespace s21 {
            (IsNumeric(current_token_) || 
            current_token_ == TokenType::kOpenBracket ||
            current_token_ == TokenType::kFunction);
-  }
-
-  constexpr bool Translator::UnaryOperator() const noexcept {
-    return current_token_ == TokenType::kOperator && 
-           !IsNumeric(prev_token_) && 
-           prev_token_ != TokenType::kCloseBracket;
   }
 
   constexpr bool Translator::FunctionEmpty() const noexcept {
@@ -171,12 +184,12 @@ namespace s21 {
 
   void Translator::ThrowErrors(const std::string_view& last_token) const {
     if (push_ == State::kBrokenBrackets)
-      throw bad_expression("Expression has broken brackets");
+      throw std::logic_error("Expression has broken brackets");
     else if (push_ == State::kFunctionErr)
-      throw bad_expression("Expression unknown function");
+      throw std::logic_error("Expression unknown function");
     else if (push_ == State::kLonelyOperator)
-      throw bad_expression("Expression has mismatched operator");
+      throw std::logic_error("Expression has mismatched operator");
     else if (!ExprFinished(GetTokenType(last_token.begin())))
-      throw bad_expression("Expression is not finished");
+      throw std::logic_error("Expression is not finished");
   }
 }

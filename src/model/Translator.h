@@ -6,20 +6,8 @@
 #include "../containers/s21_stack.h"
 
 // TODO:
-// - Fix already present unary operators
-// - Add mod/pow handling
 // - Add scientific notation handling
-// - Remove bad_expression for logic_error
 namespace s21 {
-class bad_expression final : public std::exception {
-  public:
-    bad_expression(const std::string& what_arg) : msg_(what_arg){};
-
-    const char* what() const noexcept { return msg_.c_str();}
-  private:
-    std::string msg_;
-};
-
 class Translator : public ITranslationModel  {
   public:
     static constexpr size_t kMaxExprLength = 255;
@@ -48,7 +36,6 @@ class Translator : public ITranslationModel  {
       "sqrt"
     };
 
-
     enum class TokenType {
       kDigit,
       kArg,
@@ -70,17 +57,18 @@ class Translator : public ITranslationModel  {
     void Fix(list<std::string>& dest) noexcept;
 
     void CloseBracket() noexcept;
-    void MakeUnary(list<std::string>& dest) noexcept;
+    void CollapseOperator(list<std::string>& dest) noexcept;
     bool PushToken(list<std::string>& dest) noexcept;
 
     void AdvancePosition() noexcept;
     void ThrowErrors(const std::string_view& last_token) const;
 
     TokenType GetTokenType(const position& pos) const noexcept;
+    char OpUnary(const position& op) const noexcept;
+    char OpBinary(const position& op) const noexcept;
 
     constexpr bool ValidState() const noexcept;
     constexpr bool MultiplySkipped() const noexcept;
-    constexpr bool UnaryOperator() const noexcept;
     constexpr bool FunctionEmpty() const noexcept;
     constexpr bool BracketSkipped() const noexcept;
     constexpr bool BracketFinished() const noexcept;
