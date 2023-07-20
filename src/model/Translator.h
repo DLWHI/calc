@@ -5,8 +5,6 @@
 #include "../containers/array.h"
 #include "../containers/s21_stack.h"
 
-// TODO:
-// - Add scientific notation handling
 namespace s21 {
 class Translator : public ITranslationModel  {
   public:
@@ -61,6 +59,7 @@ class Translator : public ITranslationModel  {
     bool PushToken(list<std::string>& dest) noexcept;
 
     void AdvancePosition() noexcept;
+    bool IsDigit() const noexcept;
     void ThrowErrors(const std::string_view& last_token) const;
 
     TokenType GetTokenType(const position& pos) const noexcept;

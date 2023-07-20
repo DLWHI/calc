@@ -6,6 +6,11 @@ namespace s21 {
   }
 
   list<std::string> Translator::Tokenize(const std::string_view& expression) {
+    // Expression must not have any mod and pow words.
+    // Controller should replace them with corresponding operators
+    // before sending to tokenization. Tokenizer can only will be able
+    // to work only with function representations of such operators.
+    // Ex.: mod(5, 2), pow(2, 3)
     list<std::string> tokens;
     pos_ = expression.begin();
     end_ = expression.end();
@@ -178,7 +183,13 @@ namespace s21 {
             func->compare(std::string_view(pos_, std::min(func->size(), rem))); ++func) { }
       pos_ += std::min(func->size(), rem);
     } else {
-      for (; pos_ != end_ && GetTokenType(pos_) == TokenType::kDigit; ++pos_) { };
+      for (; pos_ != end_ && (GetTokenType(pos_) == TokenType::kDigit); ++pos_) { };
+      if (pos_ != end_ && *pos_ == 'e') {
+        ++pos_;
+        if (pos_ != end_ && (*pos_ == '+' || *pos_ == '-'))
+          ++pos_;
+        for (; pos_ != end_ && (GetTokenType(pos_) == TokenType::kDigit); ++pos_) { };
+      }
     }
   }
 
