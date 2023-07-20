@@ -11,81 +11,192 @@ class ModelIntegrationTest : public ::testing::Test {
       delete subject;
     }
     s21::ICalculationModel *subject;
+    double eps = 1e-7;
 };
 
 TEST_F(ModelIntegrationTest, case_trivial_1) {
   subject->setExpression("1+2");
-  double expected = 1 + 2;
-  EXPECT_EQ(subject->Calculate(), expected);
+  constexpr double expected = 1 + 2;
+  EXPECT_NEAR(subject->Calculate(), expected, eps);
 }
 
 TEST_F(ModelIntegrationTest, case_trivial_2) {
   subject->setExpression("1-2");
-  double expected = 1 - 2;
-  EXPECT_EQ(subject->Calculate(), expected);
+  constexpr double expected = 1 - 2;
+  EXPECT_NEAR(subject->Calculate(), expected, eps);
 }
 
 TEST_F(ModelIntegrationTest, case_trivial_3) {
   subject->setExpression("sin(1-2)");
   double expected = sin(1-2);
-  EXPECT_EQ(subject->Calculate(), expected);
+  EXPECT_NEAR(subject->Calculate(), expected, eps);
 }
 
-// START_TEST(num_3_minus) {
-//   char expr[EQ_MAX_LENGTH] = "sin(-2)*4";
-//   double answer = sin(-2) * 4;
-//   ck_assert_float_eq_tol(answer, execute_calculation(expr, 0), EPS);
+TEST_F(ModelIntegrationTest, case_trivial_4) {
+  subject->setExpression("sin(-2)*4");
+  double expected = sin(-2) * 4;
+  EXPECT_NEAR(subject->Calculate(), expected, eps);
+}
+
+TEST_F(ModelIntegrationTest, case_trivial_5) {
+  subject->setExpression("1 / 0");
+  double expected = INFINITY;
+  EXPECT_NEAR(subject->Calculate(), expected, eps);
+}
+
+TEST_F(ModelIntegrationTest, case_trivial_6) {
+  subject->setExpression("ln(-1)");
+  double expected = NAN;
+  EXPECT_NE(subject->Calculate(), expected);
+}
+
+TEST_F(ModelIntegrationTest, case_trivial_7) {
+  subject->setExpression("log(1.25354e2^2)");
+  double expected = log10(pow(1.25354e2, 2));
+  EXPECT_NEAR(subject->Calculate(), expected, eps);
+}
+
+TEST_F(ModelIntegrationTest, case_trivial_8) {
+  subject->setExpression("sin(asin(0.5))");
+  double expected = sin(asin(0.5));
+  EXPECT_NEAR(subject->Calculate(), expected, eps);
+}
+
+TEST_F(ModelIntegrationTest, case_trivial_9) {
+  subject->setExpression("( .4)/(.8)");
+  double expected = 0.5;
+  EXPECT_NEAR(subject->Calculate(), expected, eps);
+}
+
+
+TEST_F(ModelIntegrationTest, case_unary_1) {
+  subject->setExpression("3+-4");
+  constexpr double expected = 3+-4;
+  EXPECT_NEAR(subject->Calculate(), expected, eps);
+}
+
+TEST_F(ModelIntegrationTest, case_unary_2) {
+  subject->setExpression("3-+4");
+  constexpr double expected = 3-+4;
+  EXPECT_NEAR(subject->Calculate(), expected, eps);
+}
+
+TEST_F(ModelIntegrationTest, case_unary_3) {
+  subject->setExpression("3---4");
+  constexpr double expected = -1;
+  EXPECT_NEAR(subject->Calculate(), expected, eps);
+}
+
+TEST_F(ModelIntegrationTest, case_unary_4) {
+  subject->setExpression("3*-4");
+  constexpr double expected = 3*-4;
+  EXPECT_NEAR(subject->Calculate(), expected, eps);
+}
+
+TEST_F(ModelIntegrationTest, case_unary_5) {
+  subject->setExpression("3-+-4");
+  constexpr double expected = 3-+-4;
+  EXPECT_NEAR(subject->Calculate(), expected, eps);
+}
+
+
+
+TEST_F(ModelIntegrationTest, case_combined_functions_1) {
+  subject->setExpression("exp(3)/x/3.141");
+  double expected = exp(3)/2.0/3.141;
+  EXPECT_NEAR(subject->Calculate(2), expected, eps);
+}
+
+TEST_F(ModelIntegrationTest, case_combined_functions_2) {
+  subject->setExpression("sin(cos(tan(2+3^6)))");
+  double expected = sin(cos(tan(2 + pow(3, 6))));
+  EXPECT_NEAR(subject->Calculate(2), expected, eps);
+}
+
+TEST_F(ModelIntegrationTest, case_combined_functions_3) {
+  subject->setExpression("2 mod 3");
+  constexpr double expected = 2;
+  EXPECT_NEAR(subject->Calculate(2), expected, eps);
+}
+
+TEST_F(ModelIntegrationTest, case_combined_functions_4) {
+  subject->setExpression("2.25 mod -3");
+  constexpr double expected = 2.25;
+  EXPECT_NEAR(subject->Calculate(2), expected, eps);
+}
+
+TEST_F(ModelIntegrationTest, case_combined_functions_5) {
+  subject->setExpression("2.25 mod 0.25");
+  constexpr double expected = 0;
+  EXPECT_NEAR(subject->Calculate(2), expected, eps);
+}
+
+TEST_F(ModelIntegrationTest, case_combined_functions_6) {
+  subject->setExpression("log(-1*(sin(5) ^ 2 * cos(2) - 1))");
+  double expected = log10(-(pow(sin(5), 2) * cos(2) - 1));
+  EXPECT_NEAR(subject->Calculate(2), expected, eps);
+}
+
+TEST_F(ModelIntegrationTest, case_combined_functions_7) {
+  subject->setExpression("4(1+2)cos(x*7-2)+sin2x");
+  double expected = (1 + 2) * 4 * cos(2 * 7 - 2) + sin(2 * 2);
+  EXPECT_NEAR(subject->Calculate(2), expected, eps);
+}
+
+TEST_F(ModelIntegrationTest, case_combined_functions_8) {
+  subject->setExpression("tan3.764^sin9.445-sin7.2889/8.0438 -cos sin cos"
+      "tan(8.4448 - 4.482)   / tan(cos(cos(sin(cos( "
+      "cos(2.003)) )  ) / 0.1315) ))  -  8.8453/ 0.3612");
+  constexpr double expected = -24.926337090;
+  EXPECT_NEAR(subject->Calculate(2), expected, eps);
+}
+
+TEST_F(ModelIntegrationTest, case_combined_functions_9) {
+  subject->setExpression("sqrt(atan3.764^ sin3x)");
+  constexpr double expected = 1.144653;
+  EXPECT_NEAR(subject->Calculate(2), expected, eps);
+}
+
+TEST_F(ModelIntegrationTest, case_combined_functions_10) {
+  subject->setExpression("5+5mod2");
+  constexpr double expected = 5+5%2;
+  EXPECT_NEAR(subject->Calculate(2), expected, eps);
+}
+
+TEST_F(ModelIntegrationTest, case_combined_functions_11) {
+  subject->setExpression("2^x+sinx");
+  double expected = 16+sin(4);
+  EXPECT_NEAR(subject->Calculate(2), expected, eps);
+}
+
+// START_TEST(num_24_sqrt_error) {
+//   char expr[EQ_MAX_LENGTH] = "qqrt(atan( 3.764) ^ sin(3))";
+//   execute_calculation(expr, 0);
+//   ck_assert_str_eq(expr, "INVALID EXPRESSION");
 // }
 // END_TEST
 
-// START_TEST(num_4_minus) {
-//   char expr[EQ_MAX_LENGTH] = "3+-4";
-//   double answer = 3 + -4;
-//   ck_assert_float_eq_tol(answer, execute_calculation(expr, 0), EPS);
+// START_TEST(num_25_error) {
+//   char expr[EQ_MAX_LENGTH] = "2@3";
+//   execute_calculation(expr, 0);
+//   ck_assert_str_eq(expr, "INVALID EXPRESSION");
 // }
 // END_TEST
 
-// START_TEST(num_5_minus) {
-//   char expr[EQ_MAX_LENGTH] = "3-+4";
-//   double answer = 3 + -4;
-//   ck_assert_float_eq_tol(answer, execute_calculation(expr, 0), EPS);
+// START_TEST(num_boobs) {
+//   char expr[EQ_MAX_LENGTH] = "(.)/(.)";
+//   execute_calculation(expr, 0);
+//   ck_assert_str_eq(expr, "INVALID DATA");
 // }
 // END_TEST
 
-// START_TEST(num_6_minus) {
-//   char expr[EQ_MAX_LENGTH] = "3---4";
-//   double answer = 3 - 4;
-//   ck_assert_float_eq_tol(answer, execute_calculation(expr, 0), EPS);
+// START_TEST(num_dick) {
+//   char expr[EQ_MAX_LENGTH] = "./.";
+//   execute_calculation(expr, 0);
+//   ck_assert_str_eq(expr, "INVALID DATA");
 // }
 // END_TEST
 
-// START_TEST(num_1_combined) {
-//   char expr[EQ_MAX_LENGTH] = "3*-4";
-//   double answer = 3 * -4;
-//   ck_assert_float_eq_tol(answer, execute_calculation(expr, 0), EPS);
-// }
-// END_TEST
-
-// START_TEST(num_2_combined) {
-//   char expr[EQ_MAX_LENGTH] = "-3*-4";
-//   double answer = -3 * -4;
-//   ck_assert_float_eq_tol(answer, execute_calculation(expr, 0), EPS);
-// }
-// END_TEST
-
-// START_TEST(num_3_combined) {
-//   char expr[EQ_MAX_LENGTH] = "exp(3)/x/3.141";
-//   double answer = exp(3) / 2.0 / 3.141;
-//   ck_assert_float_eq_tol(answer, execute_calculation(expr, 2), EPS);
-// }
-// END_TEST
-
-// START_TEST(num_7_minus) {
-//   char expr[EQ_MAX_LENGTH] = "3-+-4";
-//   double answer = 3 - +-4;
-//   ck_assert_float_eq_tol(answer, execute_calculation(expr, 0), EPS);
-// }
-// END_TEST
 
 // START_TEST(num_2_too_long_string) {
 //   char expr[258] = {0};
@@ -118,176 +229,6 @@ TEST_F(ModelIntegrationTest, case_trivial_3) {
 //   ck_assert_str_eq(expr, "INVALID EXPRESSION");
 // }
 // END_TEST
-
-// START_TEST(num_7_trigonometric) {
-//   char expr[EQ_MAX_LENGTH] = "sin(cos(tan(2+3^6)))";
-//   double answer = sin(cos(tan(2 + pow(3, 6))));
-//   ck_assert_float_eq_tol(answer, execute_calculation(expr, 0), EPS);
-// }
-// END_TEST
-
-// START_TEST(num_7_inf) {
-//   char expr[EQ_MAX_LENGTH] = "1 / 0";
-//   ck_assert_float_infinite(execute_calculation(expr, 0));
-// }
-// END_TEST
-
-// START_TEST(num_8_nan) {
-//   char expr[EQ_MAX_LENGTH] = "ln(-1)";
-//   ck_assert_float_nan(execute_calculation(expr, 0));
-// }
-// END_TEST
-
-// START_TEST(num_9_correct) {
-//   char expr[EQ_MAX_LENGTH] = "ln(1)";
-//   ck_assert_float_eq_tol(execute_calculation(expr, 0), 0., EPS);
-// }
-// END_TEST
-
-// START_TEST(num_10_mod) {
-//   char expr[EQ_MAX_LENGTH] = "2 mod 3";
-//   ck_assert_float_eq_tol(execute_calculation(expr, 0), 2., EPS);
-// }
-// END_TEST
-
-// START_TEST(num_11_mod) {
-//   char expr[EQ_MAX_LENGTH] = "2.25 mod -3";
-//   ck_assert_float_eq_tol(execute_calculation(expr, 0), 2.25, EPS);
-// }
-// END_TEST
-
-// START_TEST(num_12_mod) {
-//   char expr[EQ_MAX_LENGTH] = "2.25 mod 0.25";
-//   ck_assert_float_eq_tol(execute_calculation(expr, 0), 0., EPS);
-// }
-// END_TEST
-
-// START_TEST(num_12_log) {
-//   char expr[EQ_MAX_LENGTH] = "log(10)";
-//   ck_assert_float_eq_tol(execute_calculation(expr, 0), 1., EPS);
-// }
-// END_TEST
-
-// START_TEST(num_13_log) {
-//   char expr[EQ_MAX_LENGTH] = "log(-1*(sin(5) ^ 2 * cos(2) - 1))";
-//   double answer = log10(-(pow(sin(5), 2) * cos(2) - 1));
-//   ck_assert_float_eq_tol(execute_calculation(expr, 0), answer, EPS);
-// }
-// END_TEST
-
-// START_TEST(num_14_ln) {
-//   char expr[EQ_MAX_LENGTH] = "ln(2.718281828)";
-//   double answer = log(2.718281828);
-//   ck_assert_float_eq_tol(execute_calculation(expr, 0), answer, EPS);
-// }
-// END_TEST
-
-// START_TEST(num_15_ln) {
-//   char expr[EQ_MAX_LENGTH] = "ln(125.354^2)";
-//   double answer = log(pow(125.354, 2));
-//   ck_assert_float_eq_tol(execute_calculation(expr, 0), answer, EPS);
-// }
-// END_TEST
-
-// START_TEST(num_16_log) {
-//   char expr[EQ_MAX_LENGTH] = "log(125.354^2)";
-//   double answer = log10(pow(125.354, 2));
-//   ck_assert_float_eq_tol(execute_calculation(expr, 0), answer, EPS);
-// }
-// END_TEST
-
-// START_TEST(num_17_sin_asin) {
-//   char expr[EQ_MAX_LENGTH] = "sin(asin(0.5))";
-//   double answer = sin(asin(0.5));
-//   ck_assert_float_eq_tol(execute_calculation(expr, 0), answer, EPS);
-// }
-// END_TEST
-
-// START_TEST(num_18_cos_acos) {
-//   char expr[EQ_MAX_LENGTH] = "cos(acos(0.5))";
-//   double answer = sin(asin(0.5));
-//   ck_assert_float_eq_tol(execute_calculation(expr, 0), answer, EPS);
-// }
-// END_TEST
-
-// START_TEST(num_19_cos_sin) {
-//   char expr[EQ_MAX_LENGTH] = "(1+2)*4*cos(x*7-2)+sin(x*2)";
-//   double answer = (1 + 2) * 4 * cos(2 * 7 - 2) + sin(2 * 2);
-//   ck_assert_float_eq_tol(execute_calculation(expr, 2.0), answer, EPS);
-// }
-// END_TEST
-
-// START_TEST(num_20_long_expr) {
-//   char expr[EQ_MAX_LENGTH] =
-//       "tan( 3.764) ^sin( 9.445-sin( 7.2889 /  8.0438 -cos( sin(cos( "
-//       "tan(8.4448))) - 4.482)  )  / tan(cos(cos(sin(cos( "
-//       "cos(2.003)) )  ) / 0.1315) ))  -  8.8453/ 0.3612";
-//   double answer = -23.76667454586336;
-//   ck_assert_float_eq_tol(execute_calculation(expr, 2.0), answer, EPS);
-// }
-// END_TEST
-
-// START_TEST(num_23_atan_sin) {
-//   char expr[EQ_MAX_LENGTH] = "atan( 3.764) ^ sin(3)";
-//   double answer = pow(atan(3.764), sin(3));
-//   ck_assert_float_eq_tol(execute_calculation(expr, 2.0), answer, EPS);
-// }
-// END_TEST
-
-// START_TEST(num_23_sqrt) {
-//   char expr[EQ_MAX_LENGTH] = "sqrt(atan( 3.764) ^ sin(3))";
-//   double answer = sqrt(pow(atan(3.764), sin(3)));
-//   ck_assert_float_eq_tol(execute_calculation(expr, 2.0), answer, EPS);
-// }
-// END_TEST
-
-// START_TEST(num_24_sqrt_error) {
-//   char expr[EQ_MAX_LENGTH] = "qqrt(atan( 3.764) ^ sin(3))";
-//   execute_calculation(expr, 0);
-//   ck_assert_str_eq(expr, "INVALID EXPRESSION");
-// }
-// END_TEST
-
-// START_TEST(num_25_error) {
-//   char expr[EQ_MAX_LENGTH] = "2@3";
-//   execute_calculation(expr, 0);
-//   ck_assert_str_eq(expr, "INVALID EXPRESSION");
-// }
-// END_TEST
-
-// START_TEST(num_boobs) {
-//   char expr[EQ_MAX_LENGTH] = "(.)/(.)";
-//   execute_calculation(expr, 0);
-//   ck_assert_str_eq(expr, "INVALID DATA");
-// }
-// END_TEST
-
-// START_TEST(num_dick) {
-//   char expr[EQ_MAX_LENGTH] = "./.";
-//   execute_calculation(expr, 0);
-//   ck_assert_str_eq(expr, "INVALID DATA");
-// }
-// END_TEST
-
-// START_TEST(num_bered_boobs) {
-//   char expr[EQ_MAX_LENGTH] = "( .4)/(.8)";
-//   double answer = .4/.8;
-//   ck_assert_float_eq_tol(execute_calculation(expr, 2.0), answer, EPS);
-// }
-// END_TEST
-// START_TEST(num_mod_longer) {
-//   char expr[EQ_MAX_LENGTH] = "5+5mod2";
-//   double answer = 5+5%2;
-//   ck_assert_float_eq_tol(execute_calculation(expr, 2.0), answer, EPS);
-// }
-// END_TEST
-// START_TEST(num_x_and_unary) {
-//   char expr[EQ_MAX_LENGTH] = "2^x+sinx";
-//   double answer = 16+sin(4);
-//   ck_assert_float_eq_tol(execute_calculation(expr, 4.0), answer, EPS);
-// }
-// END_TEST
-
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

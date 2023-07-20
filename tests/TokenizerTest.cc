@@ -249,6 +249,13 @@ TEST(TokenizerTest, case_operators_13) {
   EXPECT_EQ(expected, to_string(returned));
 }
 
+TEST(TokenizerTest, case_operators_14) {
+  s21::Tokenizer tr;
+  std::string expected = "tan(3.764)^sin(9.445)";
+  s21::list<std::string> returned = tr.Tokenize("tan3.764^sin9.445");
+  EXPECT_EQ(expected, to_string(returned));
+}
+
 
 
 TEST(TokenizerTest, case_scientific_1) {
