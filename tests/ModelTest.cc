@@ -41,7 +41,7 @@ TEST_F(ModelIntegrationTest, case_trivial_4) {
 TEST_F(ModelIntegrationTest, case_trivial_5) {
   subject->setExpression("1 / 0");
   double expected = INFINITY;
-  EXPECT_NEAR(subject->Calculate(), expected, eps);
+  EXPECT_EQ(subject->Calculate(), expected);
 }
 
 TEST_F(ModelIntegrationTest, case_trivial_6) {

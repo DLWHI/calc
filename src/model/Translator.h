@@ -34,7 +34,7 @@ class Translator final {
              Tokenizer::GetTokenType(op_stack_.top().at(0)) == TokenType::kFunction;
     };
 
-    stack<std::string_view> op_stack_;
+    stack<std::string> op_stack_;
     TokenType current_token_;
 };
 }  // namespace s21
