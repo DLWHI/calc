@@ -2,10 +2,12 @@
 
 #include "../src/model/DefaultModel.h"
 
+typedef s21::DefaultModel TestingModel;
+
 class ModelIntegrationTest : public ::testing::Test {
   protected:
     void SetUp() { 
-      subject = new s21::DefaultModel;
+      subject = new TestingModel;
     }
     void TearDown() { 
       delete subject;
@@ -86,6 +88,30 @@ TEST_F(ModelIntegrationTest, case_trivial_12) {
   EXPECT_NEAR(subject->Calculate(2), expected, eps);
 }
 
+TEST_F(ModelIntegrationTest, case_trivial_13) {
+  subject->setExpression("3e8");
+  constexpr double expected = 3e8;
+  EXPECT_NEAR(subject->Calculate(), expected, eps);
+}
+
+TEST_F(ModelIntegrationTest, case_trivial_14) {
+  subject->setExpression("1.6e-19");
+  constexpr double expected = 1.6e-19;
+  EXPECT_NEAR(subject->Calculate(), expected, eps);
+}
+
+TEST_F(ModelIntegrationTest, case_trivial_15) {
+  subject->setExpression("9.1e-31*1.6e-19");
+  constexpr double expected = 9.1e-31*1.6e-19;
+  EXPECT_NEAR(subject->Calculate(), expected, eps);
+}
+
+TEST_F(ModelIntegrationTest, case_trivial_16) {
+  subject->setExpression("sin(3.14e-0)");
+  double expected = sin(3.14e-0);
+  EXPECT_NEAR(subject->Calculate(), expected, eps);
+}
+
 
 
 TEST_F(ModelIntegrationTest, case_unary_1) {
@@ -154,83 +180,84 @@ TEST_F(ModelIntegrationTest, case_combined_functions_8) {
 
 TEST_F(ModelIntegrationTest, case_combined_functions_9) {
   subject->setExpression("sqrt(atan3.764^ sin3x)");
-  constexpr double expected = 1.144653;
-  EXPECT_NEAR(subject->Calculate(2), expected, eps);
+  constexpr double expected = 1;
+  EXPECT_NEAR(subject->Calculate(1.0471975511965976), expected, eps);
 }
 
 TEST_F(ModelIntegrationTest, case_combined_functions_10) {
   subject->setExpression("5+5mod2");
   constexpr double expected = 5+5%2;
-  EXPECT_NEAR(subject->Calculate(2), expected, eps);
+  EXPECT_NEAR(subject->Calculate(), expected, eps);
 }
 
 TEST_F(ModelIntegrationTest, case_combined_functions_11) {
   subject->setExpression("2^x+sinx");
   double expected = 16+sin(4);
-  EXPECT_NEAR(subject->Calculate(2), expected, eps);
+  EXPECT_NEAR(subject->Calculate(4), expected, eps);
+}
+
+TEST_F(ModelIntegrationTest, case_combined_functions_12) {
+  subject->setExpression("2^3^2");
+  constexpr double expected = 512;
+  EXPECT_NEAR(subject->Calculate(), expected, eps);
+}
+
+TEST_F(ModelIntegrationTest, case_combined_functions_13) {
+  subject->setExpression("exp(~9.1e-31*x*x/(2*1.38e-23*10e6))");
+  constexpr double expected = 0.999999999999975638;
+  EXPECT_NEAR(subject->Calculate(M_E), expected, eps);
 }
 
 
-TEST(ModelIntegrationTest_Error, case_broken_numbers_1) {
-  std::unique_ptr<s21::ICalculationModel> subject(new s21::DefaultModel);
+
+TEST_F(ModelIntegrationTest, case_broken_numbers_1) {
   subject->setExpression("2.33.4cos(x0)");
-  EXPECT_THROW(subject->Calculate(0), std::invalid_argument);
+  EXPECT_THROW(subject->Calculate(), std::invalid_argument);
 }
 
-TEST(ModelIntegrationTest_Error, case_broken_numbers_2) {
-  std::unique_ptr<s21::ICalculationModel> subject(new s21::DefaultModel);
+TEST_F(ModelIntegrationTest, case_broken_numbers_2) {
   subject->setExpression("2e");
-  EXPECT_THROW(subject->Calculate(0), std::invalid_argument);
+  EXPECT_THROW(subject->Calculate(), std::invalid_argument);
 }
 
-TEST(ModelIntegrationTest_Error, case_broken_numbers_3) {
-  std::unique_ptr<s21::ICalculationModel> subject(new s21::DefaultModel);
+TEST_F(ModelIntegrationTest, case_broken_numbers_3) {
   subject->setExpression("2.2e+sinx");
-  EXPECT_THROW(subject->Calculate(0), std::invalid_argument);
+  EXPECT_THROW(subject->Calculate(), std::invalid_argument);
 }
 
-TEST(ModelIntegrationTest_Error, case_broken_numbers_4) {
-  std::unique_ptr<s21::ICalculationModel> subject(new s21::DefaultModel);
+TEST_F(ModelIntegrationTest, case_broken_numbers_4) {
   subject->setExpression("2.2esinx");
-  EXPECT_THROW(subject->Calculate(0), std::invalid_argument);
+  EXPECT_THROW(subject->Calculate(), std::invalid_argument);
 }
 
-TEST(ModelIntegrationTest_Error, case_broken_numbers_5) {
-  std::unique_ptr<s21::ICalculationModel> subject(new s21::DefaultModel);
+TEST_F(ModelIntegrationTest, case_broken_numbers_5) {
   subject->setExpression("2.2e.88-xx");
-  EXPECT_THROW(subject->Calculate(0), std::invalid_argument);
+  EXPECT_THROW(subject->Calculate(), std::invalid_argument);
 }
 
-TEST(ModelIntegrationTest_Error, case_broken_numbers_6) {
-  std::unique_ptr<s21::ICalculationModel> subject(new s21::DefaultModel);
+TEST_F(ModelIntegrationTest, case_broken_numbers_6) {
   subject->setExpression("2.2e*10");
-  EXPECT_THROW(subject->Calculate(0), std::invalid_argument);
+  EXPECT_THROW(subject->Calculate(), std::invalid_argument);
 }
 
 
-TEST(ModelIntegrationTest_Error, case_boobs) {
-  std::unique_ptr<s21::ICalculationModel> subject(new s21::DefaultModel);
+
+TEST_F(ModelIntegrationTest, case_boobs) {
   subject->setExpression("(.)/(.)");
-  EXPECT_THROW(subject->Calculate(0), std::invalid_argument);
+  EXPECT_THROW(subject->Calculate(), std::invalid_argument);
 }
 
-TEST(ModelIntegrationTest_Error, case_dick) {
-  std::unique_ptr<s21::ICalculationModel> subject(new s21::DefaultModel);
+TEST_F(ModelIntegrationTest, case_dick) {
   subject->setExpression("./.");
-  EXPECT_THROW(subject->Calculate(0), std::invalid_argument);
+  EXPECT_THROW(subject->Calculate(), std::invalid_argument);
 }
 
+TEST_F(ModelIntegrationTest, case_long) {
+  std::string longd = "7";
+  for (int i = 0; i < 255; longd += "+2", i++) { };
+  EXPECT_THROW(subject->setExpression(longd), std::invalid_argument);
+}
 
-// START_TEST(num_2_too_long_string) {
-//   char expr[258] = {0};
-//   for (int i = 0; i < 258; i += 2) {
-//     expr[i] = '2';
-//     expr[i + 1] = '+';
-//   }
-//   expr[257] = '\0';
-//   ck_assert_float_eq_tol(256, execute_calculation(expr, 0), 1e-7);
-// }
-// END_TEST
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

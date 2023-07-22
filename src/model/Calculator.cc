@@ -26,4 +26,14 @@ namespace s21 {
       calc_stack_.push(kBinaryFunctions[operation](StackPop(), StackPop()));
   }
 
+  double Calculator::ToDouble(std::string src, double x) const {
+    if (src.at(0) == 'x')
+      return x;
+    std::size_t idx;
+    double dbl = std::stod(src, &idx);
+    if (idx != src.size())
+      throw std::invalid_argument("Invalid number in expression");
+    return dbl;
+  };
+
 }  // namespace s21

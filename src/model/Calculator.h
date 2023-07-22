@@ -54,9 +54,7 @@ class Calculator final {
       return val;
     }
 
-    double ToDouble(std::string src, double x) {
-      return (src.at(0) == 'x') ? x : std::stod(src);
-    };
+    double ToDouble(std::string src, double x) const;
 
     TokenType current_token_;
     stack<double> calc_stack_;

@@ -10,6 +10,8 @@
 namespace s21 {
 class DefaultModel : public ICalculationModel {
   public:
+    static constexpr std::size_t kExprMaxSize = 255;
+
     double Calculate(double x = 0) {
       return machine.Calculate(expr_, x);
     };
@@ -36,6 +38,8 @@ class DefaultModel : public ICalculationModel {
     };
 
     void setExpression(const std::string_view& expression) {
+      if (expression.size() > kExprMaxSize)
+        throw std::invalid_argument("Expression is too long");
       expr_ = to_polish.Translate(fixer.Tokenize(expression));
     }
   private:
