@@ -156,7 +156,7 @@ namespace s21 {
       auto func = kFunctions.begin();
       for (; func != kFunctions.end() && 
             func->compare(std::string_view(pos_, std::min(func->size(), rem))); ++func) { }
-      pos_ += std::min(func->size(), rem);
+      pos_ += std::min(func->size(), rem)*(func != kFunctions.end());
     } else {
       for (; pos_ != end_ && (GetTokenType(*pos_) == TokenType::kDigit); ++pos_) { };
       if (pos_ != end_ && *pos_ == 'e') {

@@ -35,7 +35,7 @@ class DefaultModel : public ICalculationModel {
       return points;
     };
 
-    void setExpression(const std::string_view& expression) { 
+    void setExpression(const std::string_view& expression) {
       expr_ = to_polish.Translate(fixer.Tokenize(expression));
     }
   private:

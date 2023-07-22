@@ -462,6 +462,11 @@ TEST(TokenizerTest, case_error_mismatch_op_5) {
   EXPECT_THROW(tr.Tokenize("sin(+-+)"), std::logic_error);
 }
 
+TEST(TokenizerTest, case_error_mismatch_op_6) {
+  s21::Tokenizer tr;
+  EXPECT_THROW(tr.Tokenize("*3"), std::logic_error);
+}
+
 
 
 TEST(TokenizerTest, case_error_brackets_broken_1) {
@@ -484,33 +489,22 @@ TEST(TokenizerTest, case_error_brackets_broken_4) {
   EXPECT_THROW(tr.Tokenize("((cos(x-tgcos)sinsin(xsin(1-xx))+xcosx"), std::logic_error);
 }
 
+TEST(TokenizerTest, case_error_brackets_broken_5) {
+  s21::Tokenizer tr;
+  EXPECT_THROW(tr.Tokenize("sin(cos())"), std::logic_error);
+}
 
-// caught at calculation
-// TEST(TokenizerTest, case_broken_scientific_1) {
-//   s21::Tokenizer tr;
-//   EXPECT_THROW(tr.Tokenize("2e"), std::logic_error);
-// }
 
-// TEST(TokenizerTest, case_broken_scientific_2) {
-//   s21::Tokenizer tr;
-//   EXPECT_THROW(tr.Tokenize("2.2e+sinx"), std::logic_error);
-// }
 
-// TEST(TokenizerTest, case_broken_scientific_3) {
-//   s21::Tokenizer tr;
-//   std::cout << to_string(tr.Tokenize("2.2esinx")) << std::endl;
-//   EXPECT_THROW(tr.Tokenize("2.2esinx"), std::logic_error);
-// }
+TEST(TokenizerTest, case_error_unknown_func_1) {
+  s21::Tokenizer tr;
+  EXPECT_THROW(tr.Tokenize("qqrt(atan( 3.764) ^ sin(3))"), std::logic_error);
+}
 
-// TEST(TokenizerTest, case_broken_scientific_4) {
-//   s21::Tokenizer tr;
-//   EXPECT_THROW(tr.Tokenize("2.2e-xx"), std::logic_error);
-// }
-
-// TEST(TokenizerTest, case_broken_scientific_5) {
-//   s21::Tokenizer tr;
-//   EXPECT_THROW(tr.Tokenize("2.2e*10"), std::logic_error);
-// }
+TEST(TokenizerTest, case_error_unknown_func_2) {
+  s21::Tokenizer tr;
+  EXPECT_THROW(tr.Tokenize("2@3"), std::logic_error);
+}
 
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);

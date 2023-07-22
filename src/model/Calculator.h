@@ -14,6 +14,7 @@ class Calculator final {
     Calculator() : kUnaryFunctions({
       std::pair("#", [](double x) { return x;}),
       std::pair("~", [](double x) { return -x;}),
+      std::pair("ln", log),
       std::pair("tg", tan),
       std::pair("sin", sin),
       std::pair("cos", cos),
@@ -21,6 +22,7 @@ class Calculator final {
       std::pair("ctg", [](double x) { return 1/tan(x);}),
       std::pair("cot", [](double x) { return 1/tan(x);}),
       std::pair("exp", exp),
+      std::pair("log", log10),
       std::pair("atg", atan),
       std::pair("asin", asin),
       std::pair("acos", acos),
@@ -51,6 +53,10 @@ class Calculator final {
       calc_stack_.pop();
       return val;
     }
+
+    double ToDouble(std::string src, double x) {
+      return (src.at(0) == 'x') ? x : std::stod(src);
+    };
 
     TokenType current_token_;
     stack<double> calc_stack_;

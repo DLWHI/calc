@@ -10,7 +10,7 @@ namespace s21 {
     for (auto token: expr) {
       current_token_ = Tokenizer::GetTokenType(token.at(0));
       if (Tokenizer::IsNumeric(current_token_)) {
-        calc_stack_.push(std::stod(token));
+        calc_stack_.push(ToDouble(token, x));
       } else if (Tokenizer::IsOperateable(current_token_)) {
         Operate(token.c_str());
       }

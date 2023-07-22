@@ -67,13 +67,15 @@ class Tokenizer final {
     typedef std::string_view::const_iterator position;
 
     static constexpr std::string_view kOperators = "+-/*^%#~";
-    static constexpr array<std::string_view, 14> kFunctions = {
+    static constexpr array<std::string_view, 16> kFunctions = {
+      "ln",
       "tg",
       "sin",
       "cos",
       "tan",
       "ctg",
       "cot",
+      "log",
       "exp",
       "atg",
       "asin",

@@ -68,6 +68,25 @@ TEST_F(ModelIntegrationTest, case_trivial_9) {
   EXPECT_NEAR(subject->Calculate(), expected, eps);
 }
 
+TEST_F(ModelIntegrationTest, case_trivial_10) {
+  subject->setExpression("2 mod 3");
+  constexpr double expected = 2;
+  EXPECT_NEAR(subject->Calculate(2), expected, eps);
+}
+
+TEST_F(ModelIntegrationTest, case_trivial_11) {
+  subject->setExpression("2.25 mod -3");
+  constexpr double expected = 2.25;
+  EXPECT_NEAR(subject->Calculate(2), expected, eps);
+}
+
+TEST_F(ModelIntegrationTest, case_trivial_12) {
+  subject->setExpression("2.25 mod 0.25");
+  constexpr double expected = 0;
+  EXPECT_NEAR(subject->Calculate(2), expected, eps);
+}
+
+
 
 TEST_F(ModelIntegrationTest, case_unary_1) {
   subject->setExpression("3+-4");
@@ -113,24 +132,6 @@ TEST_F(ModelIntegrationTest, case_combined_functions_2) {
   EXPECT_NEAR(subject->Calculate(2), expected, eps);
 }
 
-TEST_F(ModelIntegrationTest, case_combined_functions_3) {
-  subject->setExpression("2 mod 3");
-  constexpr double expected = 2;
-  EXPECT_NEAR(subject->Calculate(2), expected, eps);
-}
-
-TEST_F(ModelIntegrationTest, case_combined_functions_4) {
-  subject->setExpression("2.25 mod -3");
-  constexpr double expected = 2.25;
-  EXPECT_NEAR(subject->Calculate(2), expected, eps);
-}
-
-TEST_F(ModelIntegrationTest, case_combined_functions_5) {
-  subject->setExpression("2.25 mod 0.25");
-  constexpr double expected = 0;
-  EXPECT_NEAR(subject->Calculate(2), expected, eps);
-}
-
 TEST_F(ModelIntegrationTest, case_combined_functions_6) {
   subject->setExpression("log(-1*(sin(5) ^ 2 * cos(2) - 1))");
   double expected = log10(-(pow(sin(5), 2) * cos(2) - 1));
@@ -169,33 +170,55 @@ TEST_F(ModelIntegrationTest, case_combined_functions_11) {
   EXPECT_NEAR(subject->Calculate(2), expected, eps);
 }
 
-// START_TEST(num_24_sqrt_error) {
-//   char expr[EQ_MAX_LENGTH] = "qqrt(atan( 3.764) ^ sin(3))";
-//   execute_calculation(expr, 0);
-//   ck_assert_str_eq(expr, "INVALID EXPRESSION");
-// }
-// END_TEST
 
-// START_TEST(num_25_error) {
-//   char expr[EQ_MAX_LENGTH] = "2@3";
-//   execute_calculation(expr, 0);
-//   ck_assert_str_eq(expr, "INVALID EXPRESSION");
-// }
-// END_TEST
+TEST(ModelIntegrationTest_Error, case_broken_numbers_1) {
+  std::unique_ptr<s21::ICalculationModel> subject(new s21::DefaultModel);
+  subject->setExpression("2.33.4cos(x0)");
+  EXPECT_THROW(subject->Calculate(0), std::invalid_argument);
+}
 
-// START_TEST(num_boobs) {
-//   char expr[EQ_MAX_LENGTH] = "(.)/(.)";
-//   execute_calculation(expr, 0);
-//   ck_assert_str_eq(expr, "INVALID DATA");
-// }
-// END_TEST
+TEST(ModelIntegrationTest_Error, case_broken_numbers_2) {
+  std::unique_ptr<s21::ICalculationModel> subject(new s21::DefaultModel);
+  subject->setExpression("2e");
+  EXPECT_THROW(subject->Calculate(0), std::invalid_argument);
+}
 
-// START_TEST(num_dick) {
-//   char expr[EQ_MAX_LENGTH] = "./.";
-//   execute_calculation(expr, 0);
-//   ck_assert_str_eq(expr, "INVALID DATA");
-// }
-// END_TEST
+TEST(ModelIntegrationTest_Error, case_broken_numbers_3) {
+  std::unique_ptr<s21::ICalculationModel> subject(new s21::DefaultModel);
+  subject->setExpression("2.2e+sinx");
+  EXPECT_THROW(subject->Calculate(0), std::invalid_argument);
+}
+
+TEST(ModelIntegrationTest_Error, case_broken_numbers_4) {
+  std::unique_ptr<s21::ICalculationModel> subject(new s21::DefaultModel);
+  subject->setExpression("2.2esinx");
+  EXPECT_THROW(subject->Calculate(0), std::invalid_argument);
+}
+
+TEST(ModelIntegrationTest_Error, case_broken_numbers_5) {
+  std::unique_ptr<s21::ICalculationModel> subject(new s21::DefaultModel);
+  subject->setExpression("2.2e.88-xx");
+  EXPECT_THROW(subject->Calculate(0), std::invalid_argument);
+}
+
+TEST(ModelIntegrationTest_Error, case_broken_numbers_6) {
+  std::unique_ptr<s21::ICalculationModel> subject(new s21::DefaultModel);
+  subject->setExpression("2.2e*10");
+  EXPECT_THROW(subject->Calculate(0), std::invalid_argument);
+}
+
+
+TEST(ModelIntegrationTest_Error, case_boobs) {
+  std::unique_ptr<s21::ICalculationModel> subject(new s21::DefaultModel);
+  subject->setExpression("(.)/(.)");
+  EXPECT_THROW(subject->Calculate(0), std::invalid_argument);
+}
+
+TEST(ModelIntegrationTest_Error, case_dick) {
+  std::unique_ptr<s21::ICalculationModel> subject(new s21::DefaultModel);
+  subject->setExpression("./.");
+  EXPECT_THROW(subject->Calculate(0), std::invalid_argument);
+}
 
 
 // START_TEST(num_2_too_long_string) {
@@ -206,27 +229,6 @@ TEST_F(ModelIntegrationTest, case_combined_functions_11) {
 //   }
 //   expr[257] = '\0';
 //   ck_assert_float_eq_tol(256, execute_calculation(expr, 0), 1e-7);
-// }
-// END_TEST
-
-// START_TEST(num_4_error) {
-//   char expr[EQ_MAX_LENGTH] = "sin(+-+)";
-//   execute_calculation(expr, 0);
-//   ck_assert_str_eq(expr, "INVALID EXPRESSION");
-// }
-// END_TEST
-
-// START_TEST(num_5_error) {
-//   char expr[EQ_MAX_LENGTH] = "sin(cos())";
-//   execute_calculation(expr, 0);
-//   ck_assert_str_eq(expr, "INVALID EXPRESSION");
-// }
-// END_TEST
-
-// START_TEST(num_6_error) {
-//   char expr[EQ_MAX_LENGTH] = "^3";
-//   execute_calculation(expr, 0);
-//   ck_assert_str_eq(expr, "INVALID EXPRESSION");
 // }
 // END_TEST
 int main(int argc, char** argv) {
