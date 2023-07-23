@@ -208,6 +208,13 @@ TEST_F(ModelIntegrationTest, case_combined_functions_13) {
   EXPECT_NEAR(subject->Calculate(M_E), expected, eps);
 }
 
+TEST_F(ModelIntegrationTest, case_set) {
+  subject->setExpression("1-xx/2");
+  auto set = std::move(subject->Plot(-M_PI, M_PI));
+  for (int i = 0; i < set.first.size(); i++)
+    EXPECT_NEAR(set.second[i], 1 - set.first[i]*set.first[i]/2, eps);
+}
+
 
 
 TEST_F(ModelIntegrationTest, case_broken_numbers_1) {

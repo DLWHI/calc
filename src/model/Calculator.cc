@@ -36,4 +36,14 @@ namespace s21 {
     return dbl;
   };
 
+  vector<double> Calculator::GenerateSet(double l, double r, int fin) const {
+    if (l > r)
+      throw std::domain_error("Invalid set boundaries");
+    vector<double> points;
+    points.reserve(fin);
+    double delta = (r - l)/fin;
+    for (; l < r; l += delta)
+      points.push_back(l);
+    return points;
+  }
 }  // namespace s21

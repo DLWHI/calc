@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 #include "Tokenizer.h"
+#include "../containers/vector.h"
 #include "../containers/s21_list.h"
 #include "../containers/s21_stack.h"
 #include "../containers/s21_map.h"
@@ -42,6 +43,8 @@ class Calculator final {
     typedef Tokenizer::TokenType TokenType;
     
     double Calculate(const list<std::string>& expr, double x = 0);
+
+    vector<double> GenerateSet(double l, double r, int fin) const;
   private:
     map<std::string_view, std::function<double(double)>> kUnaryFunctions;
     map<std::string_view, std::function<double(double, double)>> kBinaryFunctions;

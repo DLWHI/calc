@@ -52,6 +52,12 @@ TEST(TokenizerTest, case_missed_multp_6) {
   EXPECT_EQ(expected, to_string(returned));
 }
 
+TEST(TokenizerTest, case_missed_multp_7) {
+  s21::Tokenizer tr;
+  std::string expected = "1-x*x/2";
+  s21::list<std::string> returned = tr.Tokenize("1-xx/2");
+  EXPECT_EQ(expected, to_string(returned));
+}
 
 
 TEST(TokenizerTest, case_unopened_bracket_1) {
@@ -510,4 +516,3 @@ int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
-

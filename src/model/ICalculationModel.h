@@ -7,11 +7,8 @@ namespace s21 {
 class ICalculationModel {
   public:
     virtual double Calculate(double x = 0) = 0;
-    virtual vector<double> CalculateSet(const vector<double>& points) = 0;
 
-    virtual vector<double> CalculateSet(double l, double r) = 0;
-    
-    virtual vector<double> GenerateSet(double l, double r, int fin) const = 0;
+    virtual std::pair<vector<double>, vector<double>> Plot(double x_left, double x_right) = 0;
 
     virtual void setExpression(const std::string_view& expr) = 0;
 };
