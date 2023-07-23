@@ -67,7 +67,7 @@ class Tokenizer final {
     typedef std::string_view::const_iterator position;
 
     static constexpr std::string_view kOperators = "+-/*^%#~";
-    static constexpr array<std::string_view, 16> kFunctions = {
+    static constexpr array<std::string_view, 17> kFunctions = {
       "ln",
       "tg",
       "sin",
@@ -77,6 +77,7 @@ class Tokenizer final {
       "cot",
       "log",
       "exp",
+      "mod",
       "atg",
       "asin",
       "acos",
@@ -95,6 +96,7 @@ class Tokenizer final {
     };
 
     void Fix(list<std::string>& dest);
+    bool ModCrutch(list<std::string>& dest);
 
     void CloseBracket() noexcept;
     void CollapseOperator(list<std::string>& dest);

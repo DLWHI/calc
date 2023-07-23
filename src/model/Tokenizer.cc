@@ -25,6 +25,8 @@ namespace s21 {
  }
 
   void Tokenizer::Fix(list<std::string>& dest) {
+    if (ModCrutch(dest))
+      return;
     if (BracketSkipped()) {
       dest.push_back("(");
       brackets_.push(-')');
@@ -47,6 +49,18 @@ namespace s21 {
     } else if (BracketsBroken()) {
       push_ = State::kBrokenBrackets;
     }
+  }
+
+  bool Tokenizer::ModCrutch(list<std::string>& dest) {
+    int rem = std::distance(pos_, end_);
+    if (std::string_view("mod").compare(0, 3, pos_, std::min(3, rem))) {
+      return false;
+    }
+    if (!IsNumeric(prev_token_) && prev_token_ != TokenType::kCloseBracket)
+      push_ = State::kLonelyOperator;
+    else
+      dest.push_back("%");
+    return true;
   }
 
   void Tokenizer::CloseBracket() noexcept {
