@@ -2,6 +2,7 @@
 #define SRC_MODEL_CALCULATOR_H_
 #include <cmath>
 #include <stdexcept>
+#include <utility>
 
 #include "Tokenizer.h"
 #include "../containers/vector.h"
@@ -13,31 +14,31 @@ namespace s21 {
 class Calculator final {
   public:
     Calculator() : kUnaryFunctions({
-      std::pair("#", [](double x) { return x;}),
-      std::pair("~", [](double x) { return -x;}),
-      std::pair("ln", log),
-      std::pair("tg", tan),
-      std::pair("sin", sin),
-      std::pair("cos", cos),
-      std::pair("tan", tan),
-      std::pair("ctg", [](double x) { return 1/tan(x);}),
-      std::pair("cot", [](double x) { return 1/tan(x);}),
-      std::pair("exp", exp),
-      std::pair("log", log10),
-      std::pair("atg", atan),
-      std::pair("asin", asin),
-      std::pair("acos", acos),
-      std::pair("atan", atan),
-      std::pair("acot", [](double x) { return M_PI_2 - atan(x);}),
-      std::pair("actg", [](double x) { return M_PI_2 - atan(x);}),
-      std::pair("sqrt", sqrt)
+      std::make_pair("#", [](double x) { return x;}),
+      std::make_pair("~", [](double x) { return -x;}),
+      std::make_pair("ln", [](double x) { return log(x);}),
+      std::make_pair("tg", [](double x) { return tan(x);}),
+      std::make_pair("sin", [](double x) { return sin(x);}),
+      std::make_pair("cos", [](double x) { return cos(x);}),
+      std::make_pair("tan", [](double x) { return tan(x);}),
+      std::make_pair("ctg", [](double x) { return 1/tan(x);}),
+      std::make_pair("cot", [](double x) { return 1/tan(x);}),
+      std::make_pair("exp", [](double x) { return exp(x);}),
+      std::make_pair("log", [](double x) { return log10(x);}),
+      std::make_pair("atg", [](double x) { return atan(x);}),
+      std::make_pair("asin", [](double x) { return asin(x);}),
+      std::make_pair("acos", [](double x) { return acos(x);}),
+      std::make_pair("atan", [](double x) { return atan(x);}),
+      std::make_pair("acot", [](double x) { return M_PI_2 - atan(x);}),
+      std::make_pair("actg", [](double x) { return M_PI_2 - atan(x);}),
+      std::make_pair("sqrt", [](double x) { return sqrt(x);})
     }), kBinaryFunctions({
-      std::pair("^", pow),
-      std::pair("%", fmod),
-      std::pair("+", [](double lhs, double rhs) { return lhs + rhs;}),
-      std::pair("-", [](double lhs, double rhs) { return lhs - rhs;}),
-      std::pair("*", [](double lhs, double rhs) { return lhs * rhs;}),
-      std::pair("/", [](double lhs, double rhs) { return lhs / rhs;})
+      std::make_pair("^", [](double lhs, double rhs) { return pow(lhs, rhs);}),
+      std::make_pair("%", [](double lhs, double rhs) { return fmod(lhs, rhs);}),
+      std::make_pair("+", [](double lhs, double rhs) { return lhs + rhs;}),
+      std::make_pair("-", [](double lhs, double rhs) { return lhs - rhs;}),
+      std::make_pair("*", [](double lhs, double rhs) { return lhs * rhs;}),
+      std::make_pair("/", [](double lhs, double rhs) { return lhs / rhs;})
     }) { };
 
     typedef Tokenizer::TokenType TokenType;

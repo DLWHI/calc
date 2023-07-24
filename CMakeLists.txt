@@ -12,13 +12,13 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    set(CMAKE_CXX_FLAGS  ${CMAKE_CXX_FLAGS} "-g -fdiagnostics-color=always")
+    set(CMAKE_CXX_FLAGS  ${CMAKE_CXX_FLAGS} "-g -fdiagnostics-color=always -Wall -Werror -Wextra")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "/Wall")
 endif()
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets PrintSupport)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets PrintSupport)
 
 set(MODEL_SOURCES 
     src/model/Tokenizer.cc
@@ -31,9 +31,9 @@ set(CONTROLLER_SOURCES
 
 set(VIEW_SOURCES 
         src/view/mainwindow.cpp
-        src/view/mainwindow.h
         src/view/mainwindow.ui
-)
+        src/view/assets.qrc
+        src/view/qcustomplot.cpp)
 
 set(PROJECT_SOURCES
         main.cpp
@@ -65,7 +65,8 @@ endif()
 
 add_library(model ${MODEL_SOURCES})
 
-target_link_libraries(calc.v2 PRIVATE model Qt${QT_VERSION_MAJOR}::Widgets)
+target_include_directories(calc.v2 PRIVATE src/view)
+target_link_libraries(calc.v2 PRIVATE model Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::PrintSupport)
 
 set_target_properties(calc.v2 PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
@@ -80,7 +81,6 @@ enable_testing()
 add_executable(
   tokenizer_test
   tests/TokenizerTest.cc
-  src/model/Tokenizer.cc
 )
 
 target_link_libraries(

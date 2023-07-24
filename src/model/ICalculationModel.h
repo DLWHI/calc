@@ -6,6 +6,8 @@
 namespace s21 {
 class ICalculationModel {
   public:
+    virtual ~ICalculationModel() = default;
+
     virtual double Calculate(double x = 0) = 0;
 
     virtual std::pair<vector<double>, vector<double>> Plot(double x_left, double x_right) = 0;

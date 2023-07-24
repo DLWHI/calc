@@ -16,6 +16,8 @@ public:
     ~MainWindow();
 
 private:
+    void LoadFont();
+
     Ui::MainWindow *ui;
 };
 #endif // MAINWINDOW_H
