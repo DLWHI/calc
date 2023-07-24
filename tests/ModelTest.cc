@@ -211,7 +211,7 @@ TEST_F(ModelIntegrationTest, case_combined_functions_13) {
 TEST_F(ModelIntegrationTest, case_set) {
   subject->setExpression("1-xx/2");
   auto set = std::move(subject->Plot(-M_PI, M_PI));
-  for (int i = 0; i < set.first.size(); i++)
+  for (std::size_t i = 0; i < set.first.size(); i++)
     EXPECT_NEAR(set.second[i], 1 - set.first[i]*set.first[i]/2, eps);
 }
 
