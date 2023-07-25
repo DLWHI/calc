@@ -1,16 +1,22 @@
 QMainWindow {
   font: 18pt  'Tektur';
-  background-color: #000000;
+  background-color: #121212;
 }
 
-QLineEdit { 
+QLineEdit, QPushButton { 
   font: 18pt  'Tektur';
+  color: #ffffff;
+  background-color: #1f1f1f;
+  border: 1px solid #00ffff;
+  border-radius: 4px;
 }
 
-QPushButton { 
-  font: 18pt  'Tektur';
+QLabel {
+  font: 18pt 'Tektur';
+  color: #ffffff;
 }
 
-QLabel { 
-  font: 18pt  'Tektur';
+QLabel#label_output { 
+  border: 1px solid #00ffff;
+  border-radius: 4px;
 }

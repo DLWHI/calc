@@ -11,8 +11,10 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     LoadFont();
-    LoadStyleSheet();
+    LoadStyleSheet();	
 }
+
+
 
 void MainWindow::LoadFont() {
     QFontDatabase::addApplicationFont(":/fonts/Tektur.ttf");
@@ -24,6 +26,16 @@ void MainWindow::LoadStyleSheet() {
 
     QTextStream style_stream(&style_file);
     setStyleSheet(style_stream.readAll());
+
+    ui->plot->setBackground(QColor(0x1f, 0x1f, 0x1f, 0xff));
+
+    ui->plot->xAxis->setBasePen(QColor(0xff, 0xff, 0xff, 0xff));
+    ui->plot->xAxis->setTickLabelColor(QColor(0xff, 0xff, 0xff, 0xff));
+    ui->plot->xAxis->setLabelColor(QColor(0xff, 0xff, 0xff, 0xff));
+
+    ui->plot->yAxis->setBasePen(QColor(0xff, 0xff, 0xff, 0xff));
+    ui->plot->yAxis->setTickLabelColor(QColor(0xff, 0xff, 0xff, 0xff));
+    ui->plot->yAxis->setLabelColor(QColor(0xff, 0xff, 0xff, 0xff));
 }
 
 MainWindow::~MainWindow()
