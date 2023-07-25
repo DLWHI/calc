@@ -6,7 +6,7 @@ typedef s21::DefaultModel TestingModel;
 
 class ModelIntegrationTest : public ::testing::Test {
   protected:
-    void SetUp() { 
+    void SetUp() {
       subject = new TestingModel;
     }
     void TearDown() { 

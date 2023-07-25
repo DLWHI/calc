@@ -1,6 +1,9 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include <QFontDatabase>
+#include <QFile>
+#include <QTextStream>
+#include <iostream>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -8,14 +11,19 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     LoadFont();
+    LoadStyleSheet();
 }
 
 void MainWindow::LoadFont() {
-    int id = QFontDatabase::addApplicationFont(":/fonts/Tektur.ttf");
-    QString family = QFontDatabase::applicationFontFamilies(id).at(0);
-    QFont kf(family);
-    kf.setPointSize(22);
-    setFont(kf);
+    QFontDatabase::addApplicationFont(":/fonts/Tektur.ttf");
+}
+
+void MainWindow::LoadStyleSheet() {
+    QFile style_file(":/styles/style.ss");
+    style_file.open(QIODevice::ReadOnly);
+
+    QTextStream style_stream(&style_file);
+    setStyleSheet(style_stream.readAll());
 }
 
 MainWindow::~MainWindow()
