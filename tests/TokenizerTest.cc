@@ -262,6 +262,12 @@ TEST(TokenizerTest, case_operators_14) {
   EXPECT_EQ(expected, to_string(returned));
 }
 
+TEST(TokenizerTest, case_operators_15) {
+  s21::Tokenizer tr;
+  std::string expected = "2%3";
+  s21::list<std::string> returned = tr.Tokenize("2mod3");
+  EXPECT_EQ(expected, to_string(returned));
+}
 
 
 TEST(TokenizerTest, case_scientific_1) {

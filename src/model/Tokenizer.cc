@@ -56,10 +56,12 @@ namespace s21 {
     if (std::string_view("mod").compare(0, 3, pos_, std::min(3, rem))) {
       return false;
     }
+    push_ = State::kDiscard;
     if (!IsNumeric(prev_token_) && prev_token_ != TokenType::kCloseBracket)
       push_ = State::kLonelyOperator;
     else
       dest.push_back("%");
+    prev_token_ = TokenType::kOperator;
     return true;
   }
 

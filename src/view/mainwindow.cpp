@@ -10,17 +10,21 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    LoadFont();
-    LoadStyleSheet();	
+    SetRestrictions();
+    LoadStyle();
 }
 
+void MainWindow::SetRestrictions() {
+    ui->input_x->setValidator(new QDoubleValidator());
+    ui->input_xl->setValidator(new QDoubleValidator());
+    ui->input_xr->setValidator(new QDoubleValidator());
+    ui->input_yl->setValidator(new QDoubleValidator());
+    ui->input_yr->setValidator(new QDoubleValidator());
+}
 
-
-void MainWindow::LoadFont() {
+void MainWindow::LoadStyle() {
     QFontDatabase::addApplicationFont(":/fonts/Tektur.ttf");
-}
-
-void MainWindow::LoadStyleSheet() {
+    
     QFile style_file(":/styles/style.ss");
     style_file.open(QIODevice::ReadOnly);
 

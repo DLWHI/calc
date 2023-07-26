@@ -16,6 +16,11 @@ QLabel#label_output {
   border-radius: 4px;
 }
 
+QLabel#label_output:hover { 
+  border-color: #00ffff;
+  background-color: #444444;
+}
+
 QLabel#label_eq { 
   font: 24pt 'Tektur';
 }
@@ -42,11 +47,12 @@ QPushButton {
 }
 
 QPushButton:hover {
-  background-color: #404040;
+  background-color: #444444;
   border: 1px solid #00ffff;
   border-radius: 4px;
 }
 
 QPushButton:pressed {
-  background-color: #202020;
+  background-color: #121212;
+  border-color: #afafaf;
 }

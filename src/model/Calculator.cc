@@ -20,10 +20,12 @@ namespace s21 {
   }
 
   void Calculator::Operate(const std::string_view& operation) {
+    double r = StackPop();
     if (kUnaryFunctions.contains(operation)) 
-      calc_stack_.push(kUnaryFunctions[operation](StackPop()));
-    else if (kBinaryFunctions.contains(operation)) 
-      calc_stack_.push(kBinaryFunctions[operation](StackPop(), StackPop()));
+      return calc_stack_.push(kUnaryFunctions[operation](r));
+    double l = StackPop();
+    if (kBinaryFunctions.contains(operation)) 
+      return calc_stack_.push(kBinaryFunctions[operation](l, r));
   }
 
   double Calculator::ToDouble(std::string src, double x) const {

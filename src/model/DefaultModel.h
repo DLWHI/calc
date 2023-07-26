@@ -18,7 +18,7 @@ class DefaultModel : public ICalculationModel {
     };
 
     std::pair<vector<double>, vector<double>> Plot(double x_left, double x_right) {
-      vector<double> x_set = std::move(machine_.GenerateSet(x_left, x_right, kRangeFinesse));
+      vector<double> x_set = machine_.GenerateSet(x_left, x_right, kRangeFinesse);
       vector<double> y_set;
       y_set.reserve(kRangeFinesse);
       for (double x: x_set)

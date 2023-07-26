@@ -16,9 +16,11 @@ public:
     ~MainWindow();
 
 private:
-    void LoadFont();
-    void LoadStyleSheet();
-    
+    void SetRestrictions();
+    void LoadStyle();
+
+    void InputButtonPressed();
+
     Ui::MainWindow *ui;
 };
 #endif // MAINWINDOW_H
