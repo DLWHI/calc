@@ -28,13 +28,8 @@ private:
     void Eval();
     void Plot();
 
-    void GetFocusedEdit(QWidget * old, QWidget * now);
-
-    void keyPressEvent(QKeyEvent *event) override;
-
     static const s21::set<QString> banned_buttons;
 
     Ui::MainWindow *ui;
-    QLineEdit* focused_;
 };
 #endif // MAINWINDOW_H

@@ -92,16 +92,6 @@ void MainWindow::Plot() {
 
 }
 
-void MainWindow::keyPressEvent(QKeyEvent *event) {
-    if (focused_) {
-        // focused_->insert()
-    }
-}
-
-void MainWindow::GetFocusedEdit(QWidget * old, QWidget * now) {
-    focused_ = dynamic_cast<QLineEdit*>(now);
-}
-
 MainWindow::~MainWindow()
 {
     delete ui;

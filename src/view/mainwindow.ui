@@ -497,7 +497,7 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>48</width>
+           <width>40</width>
            <height>32</height>
           </size>
          </property>
@@ -522,7 +522,7 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>48</width>
+           <width>40</width>
            <height>32</height>
           </size>
          </property>
@@ -547,7 +547,7 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>48</width>
+           <width>40</width>
            <height>32</height>
           </size>
          </property>
@@ -572,7 +572,7 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>48</width>
+           <width>40</width>
            <height>32</height>
           </size>
          </property>
@@ -597,7 +597,7 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>70</width>
+           <width>100</width>
            <height>32</height>
           </size>
          </property>
@@ -621,7 +621,7 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>60</width>
+           <width>80</width>
            <height>32</height>
           </size>
          </property>
@@ -643,7 +643,7 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>70</width>
+           <width>100</width>
            <height>32</height>
           </size>
          </property>
@@ -1311,7 +1311,7 @@
      <x>0</x>
      <y>0</y>
      <width>626</width>
-     <height>24</height>
+     <height>43</height>
     </rect>
    </property>
   </widget>

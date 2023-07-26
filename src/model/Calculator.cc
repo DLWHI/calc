@@ -1,7 +1,7 @@
 #include "Calculator.h"
 
+#include <string>
 #include <string_view>
-#include <cmath>
 
 #include "../containers/s21_stack.h"
 

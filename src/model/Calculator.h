@@ -1,6 +1,8 @@
 #ifndef SRC_MODEL_CALCULATOR_H_
 #define SRC_MODEL_CALCULATOR_H_
+#define _USE_MATH_DEFINES
 #include <cmath>
+#include <functional>
 #include <stdexcept>
 #include <utility>
 
@@ -47,6 +49,7 @@ class Calculator final {
 
     vector<double> GenerateSet(double l, double r, int fin) const;
   private:
+    // not static const due a little bit crutchy implementation of map
     map<std::string_view, std::function<double(double)>> kUnaryFunctions;
     map<std::string_view, std::function<double(double, double)>> kBinaryFunctions;
 
