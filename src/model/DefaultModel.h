@@ -10,6 +10,9 @@
 namespace s21 {
 class DefaultModel : public ICalculationModel {
   public:
+    typedef ICalculationModel BaseModel;
+    typedef typename ICalculationModel::set_type set_type;
+
     static constexpr std::size_t kExprMaxSize = 255;
     static constexpr std::size_t kRangeFinesse = 1000;
 
@@ -17,7 +20,7 @@ class DefaultModel : public ICalculationModel {
       return machine_.Calculate(expr_, x);
     };
 
-    std::pair<vector<double>, vector<double>> Plot(double x_left, double x_right) override {
+    set_type Plot(double x_left, double x_right) override {
       vector<double> x_set = machine_.GenerateSet(x_left, x_right, kRangeFinesse);
       vector<double> y_set;
       y_set.reserve(kRangeFinesse);

@@ -1,6 +1,5 @@
 #ifndef SRC_MODEL_CALCULATOR_H_
 #define SRC_MODEL_CALCULATOR_H_
-#define _USE_MATH_DEFINES
 #include <cmath>
 #include <functional>
 #include <stdexcept>
@@ -31,8 +30,8 @@ class Calculator final {
       std::make_pair("asin", [](double x) { return asin(x);}),
       std::make_pair("acos", [](double x) { return acos(x);}),
       std::make_pair("atan", [](double x) { return atan(x);}),
-      std::make_pair("acot", [](double x) { return M_PI_2 - atan(x);}),
-      std::make_pair("actg", [](double x) { return M_PI_2 - atan(x);}),
+      std::make_pair("acot", [](double x) { return 1.57079632679489661923 - atan(x);}),
+      std::make_pair("actg", [](double x) { return 1.57079632679489661923 - atan(x);}),
       std::make_pair("sqrt", [](double x) { return sqrt(x);})
     }), kBinaryFunctions({
       std::make_pair("^", [](double lhs, double rhs) { return pow(lhs, rhs);}),

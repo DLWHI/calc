@@ -4,6 +4,10 @@ QMainWindow {
 }
 
 
+QGroupBox {
+  background-color: rgba(31, 31, 31, 128);
+  border: 1px solid #333333;
+}
 
 QLabel {
   font: 18pt 'Tektur';
@@ -53,6 +57,6 @@ QPushButton:hover {
 }
 
 QPushButton:pressed {
-  background-color: #121212;
+  background-color: #333333;
   border-color: #afafaf;
 }

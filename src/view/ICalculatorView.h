@@ -8,9 +8,10 @@
 namespace s21 {
 class ICalculatorView {
   public:
+    typedef std::pair<vector<double>, vector<double>> set_type;
     typedef std::function<void(const std::string&)> ExprChangedDelegate;
     typedef std::function<double(double)> ExprEvalDelegate;
-    typedef std::function<vector<double>(const vector<double>&)> PlotEvalDelegate;
+    typedef std::function<set_type(double, double)> PlotEvalDelegate;
 
     virtual ~ICalculatorView() = default;
 

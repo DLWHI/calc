@@ -2,11 +2,8 @@
 
 namespace s21 {
   list<std::string> Tokenizer::Tokenize(const std::string_view& expression) {
-    // Expression must not have any mod and pow words.
-    // Controller should replace them with corresponding operators
-    // before sending to tokenization. Tokenizer can only will be able
-    // to work only with function representations of such operators.
-    // Ex.: mod(5, 2), pow(2, 3)
+    if (expression.begin() == expression.end())
+      throw std::logic_error("Expression is empty");
     list<std::string> tokens;
     pos_ = expression.begin();
     end_ = expression.end();
@@ -53,7 +50,7 @@ namespace s21 {
 
   bool Tokenizer::ModCrutch(list<std::string>& dest) {
     int rem = std::distance(pos_, end_);
-    if (std::string_view("mod").compare(0, 3, pos_, std::min(3, rem))) {
+    if (std::string_view("mod").compare(0, 3, &pos_[0], std::min(3, rem))) {
       return false;
     }
     push_ = State::kDiscard;
@@ -171,7 +168,7 @@ namespace s21 {
       std::size_t rem = std::distance(pos_, end_);
       auto func = kFunctions.begin();
       for (; func != kFunctions.end() && 
-            func->compare(std::string_view(pos_, std::min(func->size(), rem))); ++func) { }
+            func->compare(std::string_view(&pos_[0], std::min(func->size(), rem))); ++func) { }
       pos_ += std::min(func->size(), rem)*(func != kFunctions.end());
     } else {
       for (; pos_ != end_ && (GetTokenType(*pos_) == TokenType::kDigit); ++pos_) { };

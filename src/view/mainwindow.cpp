@@ -36,7 +36,8 @@ void MainWindow::SetRestrictions() {
 
 void MainWindow::LoadStyle() {
     QFontDatabase::addApplicationFont(":/fonts/Tektur.ttf");
-    
+    QFont font("Tektur", 14);
+
     QFile style_file(":/styles/style.ss");
     style_file.open(QIODevice::ReadOnly);
 
@@ -48,10 +49,27 @@ void MainWindow::LoadStyle() {
     ui->plot->xAxis->setBasePen(QColor(0xff, 0xff, 0xff, 0xff));
     ui->plot->xAxis->setTickLabelColor(QColor(0xff, 0xff, 0xff, 0xff));
     ui->plot->xAxis->setLabelColor(QColor(0xff, 0xff, 0xff, 0xff));
+    ui->plot->xAxis->setTickLabelFont(font);
+    ui->plot->xAxis->setLabelFont(font);
 
     ui->plot->yAxis->setBasePen(QColor(0xff, 0xff, 0xff, 0xff));
     ui->plot->yAxis->setTickLabelColor(QColor(0xff, 0xff, 0xff, 0xff));
     ui->plot->yAxis->setLabelColor(QColor(0xff, 0xff, 0xff, 0xff));
+    ui->plot->yAxis->setTickLabelFont(font);
+    ui->plot->yAxis->setLabelFont(font);
+
+    ui->plot->addGraph();
+    ui->plot->graph(0)->setPen(QPen(QColor(0x0, 0xff, 0xff, 0xff)));
+
+    ui->plot->xAxis->setLabel("x");
+    ui->plot->yAxis->setLabel("y");
+    ui->plot->xAxis->setRange(ui->input_xl->text().toDouble(), 
+                              ui->input_xr->text().toDouble());
+    ui->plot->yAxis->setRange(ui->input_yl->text().toDouble(), 
+                              ui->input_yr->text().toDouble());
+    
+    ui->plot->setInteraction(QCP::iRangeDrag, true);
+    ui->plot->setInteractions(QCP::iRangeZoom);
 }
 
 void MainWindow::ConnectEvents() {
@@ -73,6 +91,7 @@ void MainWindow::ConnectEvents() {
     connect(ui->button_ac, &QPushButton::clicked, this, &MainWindow::ClearAll);
     connect(ui->button_del, &QPushButton::clicked, this, &MainWindow::DelSymbol);
     connect(ui->button_eq, &QPushButton::clicked, this, &MainWindow::Eval);
+    connect(ui->button_plot, &QPushButton::clicked, this, &MainWindow::Plot);
 
     connect(ui->edit_input, &QLineEdit::textChanged, this, &MainWindow::OnExprChanged);
 }
@@ -88,15 +107,18 @@ void MainWindow::DelSymbol() {
     
 void MainWindow::ClearAll() {
     ui->edit_input->clear();
-    ui->input_x->clear();
-    ui->input_xl->clear();
-    ui->input_xr->clear();
-    ui->input_yl->clear();
-    ui->input_yr->clear();
+    ui->input_x->setText("0");
+    ui->input_xl->setText("-5");
+    ui->input_xr->setText("5");
+    ui->input_yl->setText("-5");
+    ui->input_yr->setText("5");
+
+    ui->label_msg->clear();
+    ui->label_output->setText("0");
 }
 
 void MainWindow::SendError(const std::string& msg) {
-    std::cout << msg << std::endl;
+    ui->label_msg->setText(QString::fromStdString(msg));
 }
 
 void MainWindow::OnExprChanged(const QString &text) {
@@ -104,16 +126,40 @@ void MainWindow::OnExprChanged(const QString &text) {
 }
 
 void MainWindow::Eval() {
+    ui->label_msg->clear();
     bool succ;
     double arg = ui->input_x->text().toDouble(&succ);
     if (succ)
         ui->label_output->setText(QString::number(on_eval_(arg)));
     else
-        SendError("Invalid x argument");
+        SendError("Error: Invalid x argument");
 }
 
 void MainWindow::Plot() {
-    
+    ui->label_msg->clear();
+    bool succ, accumulated = true;
+    double xlb = ui->input_xl->text().toDouble(&succ);
+    accumulated &= succ;
+    double xrb = ui->input_xr->text().toDouble(&succ);
+    accumulated &= succ;
+    double ylb = ui->input_yl->text().toDouble(&succ);
+    accumulated &= succ;
+    double yrb = ui->input_yr->text().toDouble(&succ);
+    if (yrb < ylb) {
+        SendError("Error: Invalid set boundaries");
+    } else if (accumulated) {
+        auto set = on_plot_(xlb, xrb);
+        QVector<double> x_set(set.first.begin(), set.first.end());
+        QVector<double> y_set(set.second.begin(), set.second.end());
+        ui->plot->graph(0)->setData(x_set, y_set);
+
+        ui->plot->xAxis->setRange(xlb, xrb);
+        ui->plot->yAxis->setRange(ylb, yrb);
+        ui->plot->replot();
+    }
+    else {
+        SendError("Error: Invalid x argument");
+    }
 }
 
 void MainWindow::SubscribeExprChanged(const ExprChangedDelegate& delegate) {

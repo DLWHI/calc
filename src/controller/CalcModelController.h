@@ -2,15 +2,22 @@
 #define SRC_CONTROLLER_CALC_MODEL_CONTROLLER_H_
 
 #include <cmath>
+#include <type_traits>
 #include "../model/ICalculationModel.h"
 #include "../view/ICalculatorView.h"
 
 namespace s21 {
 class CalcModelController {
   public:
+    static_assert(std::is_same<ICalculationModel::set_type,
+                               ICalculatorView::set_type>::value, "");
+
+    typedef ICalculationModel::set_type set_type;
+
     CalcModelController(ICalculationModel* model, ICalculatorView* view) : model_(model), view_(view) {
       view_->SubscribeExprChanged(std::bind(&CalcModelController::ExprChangedEvent, this, std::placeholders::_1));
       view_->SubscribeExprEval(std::bind(&CalcModelController::EvaluationEvent, this, std::placeholders::_1));
+      view_->SubscribePlotEval(std::bind(&CalcModelController::PlotEvent, this, std::placeholders::_1, std::placeholders::_2));
     };
 
   private:
@@ -30,13 +37,31 @@ class CalcModelController {
           expr_changed_ = false;
         }
         eval_result = model_->Calculate(x);
-      } catch (std::logic_error& err) {
-        view_->SendError(err.what());
+      } catch (std::exception& err) {
+        view_->SendError("Error: " + std::string(err.what()));
       } catch (...) {
         view_->SendError("Unkown error occured");
       }
       return eval_result;
     }
+
+    set_type PlotEvent(double left, double right) {
+      set_type eval_result;
+      try {
+        if (expr_changed_) {
+          expr_ = view_->GetExpr();
+          model_->setExpression(expr_);
+          expr_changed_ = false;
+        }
+        eval_result = model_->Plot(left, right);
+      } catch (std::exception& err) {
+        view_->SendError("Error: " + std::string(err.what()));
+      } catch (...) {
+        view_->SendError("Unkown error occured");
+      }
+      return eval_result;
+    }
+
 
     bool expr_changed_;
     std::string expr_;
