@@ -13,11 +13,11 @@ class DefaultModel : public ICalculationModel {
     static constexpr std::size_t kExprMaxSize = 255;
     static constexpr std::size_t kRangeFinesse = 1000;
 
-    double Calculate(double x = 0) {
+    double Calculate(double x = 0) override {
       return machine_.Calculate(expr_, x);
     };
 
-    std::pair<vector<double>, vector<double>> Plot(double x_left, double x_right) {
+    std::pair<vector<double>, vector<double>> Plot(double x_left, double x_right) override {
       vector<double> x_set = machine_.GenerateSet(x_left, x_right, kRangeFinesse);
       vector<double> y_set;
       y_set.reserve(kRangeFinesse);
@@ -26,7 +26,7 @@ class DefaultModel : public ICalculationModel {
       return std::make_pair(x_set, y_set);
     }
 
-    void setExpression(const std::string_view& expression) {
+    void setExpression(const std::string_view& expression) override {
       if (expression.size() > kExprMaxSize)
         throw std::invalid_argument("Expression is too long");
       expr_ = to_polish_.Translate(fixer_.Tokenize(expression));

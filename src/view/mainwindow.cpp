@@ -22,6 +22,10 @@ MainWindow::MainWindow(QWidget *parent)
     ConnectEvents();
 }
 
+std::string MainWindow::GetExpr() {
+    return ui->edit_input->text().toStdString();
+}
+
 void MainWindow::SetRestrictions() {
     ui->input_x->setValidator(new QDoubleValidator());
     ui->input_xl->setValidator(new QDoubleValidator());
@@ -69,6 +73,8 @@ void MainWindow::ConnectEvents() {
     connect(ui->button_ac, &QPushButton::clicked, this, &MainWindow::ClearAll);
     connect(ui->button_del, &QPushButton::clicked, this, &MainWindow::DelSymbol);
     connect(ui->button_eq, &QPushButton::clicked, this, &MainWindow::Eval);
+
+    connect(ui->edit_input, &QLineEdit::textChanged, this, &MainWindow::OnExprChanged);
 }
 
 void MainWindow::InputButtonPressed() {
@@ -82,14 +88,44 @@ void MainWindow::DelSymbol() {
     
 void MainWindow::ClearAll() {
     ui->edit_input->clear();
+    ui->input_x->clear();
+    ui->input_xl->clear();
+    ui->input_xr->clear();
+    ui->input_yl->clear();
+    ui->input_yr->clear();
+}
+
+void MainWindow::SendError(const std::string& msg) {
+    std::cout << msg << std::endl;
+}
+
+void MainWindow::OnExprChanged(const QString &text) {
+    on_expr_changed_(text.toStdString());
 }
 
 void MainWindow::Eval() {
-
+    bool succ;
+    double arg = ui->input_x->text().toDouble(&succ);
+    if (succ)
+        ui->label_output->setText(QString::number(on_eval_(arg)));
+    else
+        SendError("Invalid x argument");
 }
 
 void MainWindow::Plot() {
+    
+}
 
+void MainWindow::SubscribeExprChanged(const ExprChangedDelegate& delegate) {
+    on_expr_changed_ = delegate;
+}
+
+void MainWindow::SubscribeExprEval(const ExprEvalDelegate& delegate) {
+    on_eval_ = delegate;
+}
+
+void MainWindow::SubscribePlotEval(const PlotEvalDelegate& delegate) {
+    on_plot_ = delegate;
 }
 
 MainWindow::~MainWindow()
