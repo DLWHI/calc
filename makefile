@@ -16,26 +16,25 @@ uninstall: clean
 	rm -rf $(INSTALL_DIR)/$(EXE_NAME).app
 
 html:
-	makeinfo --no-split --html $(DOC_DIR)/doc.texi
+	makeinfo --no-split --html $(DOC_DIR)/doc.texi -o $(DOC_DIR)/doc.html
+
+dvi: html
+	open $(DOC_DIR)/doc.html
 	
-dist:
+dist: clean
 	tar -cvz -f $(EXE_NAME).tar.gz $(shell find . -type f -name "*")
 
 build: configure
 	cd build && cmake --build . --target SmartCalc_v2
 
-test: configure
-		cd build && cmake --build . --target tokenizer_test
-		cd build && cmake --build . --target model_integration
+tests: configure
+	cd build && cmake --build . --target tokenizer_test
+	cd build && cmake --build . --target model_integration
 
 clean:
-	rm -rf *.info
-	rm -rf *.exe
 	rm -rf *.tar.gz
-	rm -rf *.gcda *.gcno
-	rm -rf *.dSYM
-	rm -rf *.html
+	rm -rf $(DOC_DIR)/*.html
 	rm -rf report
-	rm -rf build
+	rm -rf $(BUILD_DIR)
 
 rebuild: clean tests
