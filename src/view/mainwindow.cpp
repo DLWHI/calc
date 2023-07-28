@@ -95,6 +95,7 @@ void MainWindow::ConnectEvents() {
     connect(ui->button_ac, &QPushButton::clicked, this, &MainWindow::ClearAll);
     connect(ui->button_del, &QPushButton::clicked, this, &MainWindow::DelSymbol);
     connect(ui->button_eq, &QPushButton::clicked, this, &MainWindow::Eval);
+    connect(ui->button_eq_2, &QPushButton::clicked, this, &MainWindow::Eval);
     connect(ui->button_plot, &QPushButton::clicked, this, &MainWindow::Plot);
 
     connect(ui->edit_input, &QLineEdit::textChanged, this, &MainWindow::OnExprChanged);

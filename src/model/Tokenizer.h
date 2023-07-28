@@ -102,7 +102,7 @@ class Tokenizer final {
     bool PushToken(list<std::string>& dest);
 
     void AdvancePosition() noexcept;
-    void ThrowErrors(const std::string_view& last_token) const;
+    void ThrowErrors(const list<std::string>& tokens) const;
 
     char OpUnary(const position& op) const noexcept;
     char OpBinary(const position& op) const noexcept;

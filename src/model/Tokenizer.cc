@@ -17,10 +17,7 @@ namespace s21 {
       current_token_ = GetTokenType(*pos_);
       Fix(tokens);
     } while (PushToken(tokens) && ValidState());
-    if (tokens.empty())
-      throw std::logic_error("Expression has broken brackets");
-    else
-      ThrowErrors(tokens.back().c_str());
+    ThrowErrors(tokens);
     for (; !brackets_.empty(); brackets_.pop(), fixed_ = true)
       tokens.push_back(")");
     return tokens;
@@ -172,12 +169,12 @@ namespace s21 {
     }
   }
 
-  void Tokenizer::ThrowErrors(const std::string_view& last_token) const {
+  void Tokenizer::ThrowErrors(const list<std::string>& tokens) const {
     if (push_ == State::kFunctionErr)
       throw std::logic_error("Expression has unknown function");
     else if (push_ == State::kMismatch)
       throw std::logic_error("Expression has mismatched token");
-    else if (!ExprFinished(GetTokenType(*last_token.begin())))
+    else if (tokens.empty() || !ExprFinished(GetTokenType(*std::string_view(tokens.back().c_str()).begin())))
       throw std::logic_error("Expression is not finished");
   }
 }  // namespace s21

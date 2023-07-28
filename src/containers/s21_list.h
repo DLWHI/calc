@@ -103,10 +103,10 @@ class list {
 
   //  Element access:---------------------------------------------------------
   //  Returns a read-only reference to the data from the first node of the list
-  const_reference front() { return *begin(); }
+  const_reference front() const { return *begin(); }
 
   //  Returns a read-only reference to the data from the last node of the list
-  const_reference back() { return *(end() - 1); }
+  const_reference back() const { return *(end() - 1); }
 
   //  List Iterators: ---------------------------------------------------------
   iterator begin() { return iterator(&head_) + 1; }
