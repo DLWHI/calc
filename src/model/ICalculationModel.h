@@ -16,6 +16,8 @@ class ICalculationModel {
     virtual set_type Plot(double x_left, double x_right) = 0;
 
     virtual void setExpression(const std::string_view& expr) = 0;
+
+    virtual bool ExressionChanged() noexcept = 0;
 };
 }  // namespace s21
 

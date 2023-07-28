@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(calc.v2 VERSION 2.0 LANGUAGES CXX)
+project(SmartCalc_v2 VERSION 2.0 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -57,24 +57,27 @@ endif (WIN32)
 FetchContent_MakeAvailable(googletest)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(calc.v2
+    qt_add_executable(SmartCalc_v2
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        assets/icon.png
     )
 else()
-    add_executable(calc.v2
-        ${PROJECT_SOURCES})
+    add_executable(SmartCalc_v2
+        ${PROJECT_SOURCES} assets/icon.png)
 endif()
 
 add_library(model ${MODEL_SOURCES})
 
-target_include_directories(calc.v2 PRIVATE src/view)
-target_link_libraries(calc.v2 PRIVATE model Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::PrintSupport)
+target_include_directories(SmartCalc_v2 PRIVATE src/view)
+target_link_libraries(SmartCalc_v2 PRIVATE model Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::PrintSupport)
 
-set_target_properties(calc.v2 PROPERTIES
-    MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+set_target_properties(SmartCalc_v2 PROPERTIES
+    MACOSX_BUNDLE_BUNDLE_NAME SmartCalc_v2
+    MACOSX_BUNDLE_BUNDLE_VERSION 2.0
+    MACOSX_BUNDLE_GUI_IDENTIFIER dlwhisoftware.calc.v2
+    MACOSX_BUNDLE_ICON_FILE ../Resources/icon.png
+    RESOURCE assets/icon.png
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )
@@ -108,5 +111,5 @@ gtest_discover_tests(tokenizer_test)
 gtest_discover_tests(model_integration)
 
 if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(calc.v2)
+    qt_finalize_executable(SmartCalc_v2)
 endif()

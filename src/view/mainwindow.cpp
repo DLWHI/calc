@@ -3,7 +3,7 @@
 #include <QFontDatabase>
 #include <QFile>
 #include <QTextStream>
-#include <iostream>
+#include <regex>
 
 const s21::set<QString> MainWindow::banned_buttons = {
     QString("button_ac"),
@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 std::string MainWindow::GetExpr() {
-    return ui->edit_input->text().toStdString();
+    return ReplaceCrutch(ui->edit_input->text().toStdString());
 }
 
 void MainWindow::SetRestrictions() {
@@ -68,8 +68,8 @@ void MainWindow::LoadStyle() {
     ui->plot->yAxis->setRange(ui->input_yl->text().toDouble(), 
                               ui->input_yr->text().toDouble());
     
-    ui->plot->setInteraction(QCP::iRangeDrag, true);
     ui->plot->setInteractions(QCP::iRangeZoom);
+    ui->plot->setInteraction(QCP::iRangeDrag, true);
 }
 
 void MainWindow::ConnectEvents() {
@@ -86,6 +86,10 @@ void MainWindow::ConnectEvents() {
     }
     for (auto tr_func: ui->TrigFunctions->children()) {
         target_button = dynamic_cast<QPushButton*>(tr_func);
+        connect(target_button, &QPushButton::clicked, this, &MainWindow::InputButtonPressed);
+    }
+    for (auto br: ui->Brackets->children()) {
+        target_button = dynamic_cast<QPushButton*>(br);
         connect(target_button, &QPushButton::clicked, this, &MainWindow::InputButtonPressed);
     }
     connect(ui->button_ac, &QPushButton::clicked, this, &MainWindow::ClearAll);
@@ -115,6 +119,8 @@ void MainWindow::ClearAll() {
 
     ui->label_msg->clear();
     ui->label_output->setText("0");
+    ui->plot->graph(0)->data()->clear();
+    ui->plot->replot();
 }
 
 void MainWindow::SendError(const std::string& msg) {
@@ -122,7 +128,8 @@ void MainWindow::SendError(const std::string& msg) {
 }
 
 void MainWindow::OnExprChanged(const QString &text) {
-    on_expr_changed_(text.toStdString());
+    
+    on_expr_changed_(ReplaceCrutch(text.toStdString()));
 }
 
 void MainWindow::Eval() {
@@ -172,6 +179,11 @@ void MainWindow::SubscribeExprEval(const ExprEvalDelegate& delegate) {
 
 void MainWindow::SubscribePlotEval(const PlotEvalDelegate& delegate) {
     on_plot_ = delegate;
+}
+
+std::string MainWindow::ReplaceCrutch(const std::string &text) const {
+    std::string out = std::regex_replace(text, std::regex("mod"), "%");
+    return std::regex_replace(out, std::regex("pow"), "^");
 }
 
 MainWindow::~MainWindow()

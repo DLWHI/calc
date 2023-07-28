@@ -63,11 +63,13 @@ class Tokenizer final {
 
     list<std::string> Tokenize(const std::string_view& expression);
 
+    bool ExpressionChanged() noexcept { return fixed_;}
+
   private:
     typedef std::string_view::const_iterator position;
 
     static constexpr std::string_view kOperators = "+-/*^%#~";
-    static constexpr array<std::string_view, 17> kFunctions = {
+    static constexpr array<std::string_view, 16> kFunctions = {
       "ln",
       "tg",
       "sin",
@@ -77,7 +79,6 @@ class Tokenizer final {
       "cot",
       "log",
       "exp",
-      "mod",
       "atg",
       "asin",
       "acos",
@@ -91,12 +92,10 @@ class Tokenizer final {
       kPush,
       kDiscard,
       kFunctionErr,
-      kLonelyOperator,
-      kBrokenBrackets
+      kMismatch
     };
 
     void Fix(list<std::string>& dest);
-    bool ModCrutch(list<std::string>& dest);
 
     void CloseBracket() noexcept;
     void CollapseOperator(list<std::string>& dest);
@@ -124,6 +123,7 @@ class Tokenizer final {
     stack<char> brackets_;
     position pos_;
     position end_;
+    bool fixed_;
 };
 }  // namespace s21
 

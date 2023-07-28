@@ -37,6 +37,8 @@ class CalcModelController {
           expr_changed_ = false;
         }
         eval_result = model_->Calculate(x);
+        if (model_->ExressionChanged())
+          view_->SendError("Note: An attempt was made to fix expression");
       } catch (std::exception& err) {
         view_->SendError("Error: " + std::string(err.what()));
       } catch (...) {
@@ -54,6 +56,8 @@ class CalcModelController {
           expr_changed_ = false;
         }
         eval_result = model_->Plot(left, right);
+        if (model_->ExressionChanged())
+          view_->SendError("Note: An attempt was made to fix expression");
       } catch (std::exception& err) {
         view_->SendError("Error: " + std::string(err.what()));
       } catch (...) {

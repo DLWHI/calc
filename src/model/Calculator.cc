@@ -32,9 +32,13 @@ namespace s21 {
     if (src.at(0) == 'x')
       return x;
     std::size_t idx;
-    double dbl = std::stod(src, &idx);
-    if (idx != src.size())
+    double dbl = NAN;
+    try {
+      dbl = std::stod(src, &idx);
+      if (idx != src.size()) throw std::exception();
+    } catch (std::exception& e) {
       throw std::invalid_argument("Invalid number in expression");
+    }
     return dbl;
   };
 

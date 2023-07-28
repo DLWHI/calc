@@ -44,6 +44,8 @@ private:
     void Eval();
     void Plot();
 
+    std::string ReplaceCrutch(const std::string &text) const;
+
     static const s21::set<QString> banned_buttons;
 
     Ui::MainWindow *ui;

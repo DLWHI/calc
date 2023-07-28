@@ -71,19 +71,19 @@ TEST_F(ModelIntegrationTest, case_trivial_9) {
 }
 
 TEST_F(ModelIntegrationTest, case_trivial_10) {
-  subject->setExpression("2 mod 3");
+  subject->setExpression("2 % 3");
   constexpr double expected = 2;
   EXPECT_NEAR(subject->Calculate(2), expected, eps);
 }
 
 TEST_F(ModelIntegrationTest, case_trivial_11) {
-  subject->setExpression("2.25 mod -3");
+  subject->setExpression("2.25 % -3");
   constexpr double expected = 2.25;
   EXPECT_NEAR(subject->Calculate(2), expected, eps);
 }
 
 TEST_F(ModelIntegrationTest, case_trivial_12) {
-  subject->setExpression("2.25 mod 0.25");
+  subject->setExpression("2.25 % 0.25");
   constexpr double expected = 0;
   EXPECT_NEAR(subject->Calculate(2), expected, eps);
 }
@@ -185,7 +185,7 @@ TEST_F(ModelIntegrationTest, case_combined_functions_9) {
 }
 
 TEST_F(ModelIntegrationTest, case_combined_functions_10) {
-  subject->setExpression("5+5mod2");
+  subject->setExpression("5+5%2");
   constexpr double expected = 5+5%2;
   EXPECT_NEAR(subject->Calculate(), expected, eps);
 }

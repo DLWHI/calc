@@ -9,26 +9,30 @@ namespace s21 {
     end_ = expression.end();
     prev_token_ = TokenType::kUnknown;
     current_token_ = TokenType::kUnknown;
-    for (; pos_ != end_ && *pos_ == ' '; ++pos_) { }
+    fixed_ = false;
+    for (; !brackets_.empty(); brackets_.pop()) { }
+    for (; pos_ != end_ && *pos_ == ' '; ++pos_, fixed_ = true) { }
     do {
       push_ = State::kPush;
       current_token_ = GetTokenType(*pos_);
       Fix(tokens);
     } while (PushToken(tokens) && ValidState());
-    ThrowErrors(tokens.back().c_str());
-    for (; !brackets_.empty(); brackets_.pop())
+    if (tokens.empty())
+      throw std::logic_error("Expression has broken brackets");
+    else
+      ThrowErrors(tokens.back().c_str());
+    for (; !brackets_.empty(); brackets_.pop(), fixed_ = true)
       tokens.push_back(")");
     return tokens;
  }
 
   void Tokenizer::Fix(list<std::string>& dest) {
-    if (ModCrutch(dest))
-      return;
     if (BracketSkipped()) {
       dest.push_back("(");
       brackets_.push(-')');
+      fixed_ = true;
     } else if (BracketFinished()) {
-      for (; !brackets_.empty() && brackets_.top() < 0; brackets_.pop())
+      for (; !brackets_.empty() && brackets_.top() < 0; brackets_.pop(), fixed_ = true)
         dest.push_back(")");
     }
 
@@ -36,34 +40,21 @@ namespace s21 {
       CollapseOperator(dest);
     } else if (current_token_ == TokenType::kOpenBracket) {
       brackets_.push(')');
-    }
-    else if (current_token_ == TokenType::kCloseBracket) {
+    } else if (current_token_ == TokenType::kCloseBracket) {
       CloseBracket();
     }
 
     if (MultiplySkipped()) {
+      fixed_ = true;
       dest.push_back("*");
     } else if (BracketsBroken()) {
-      push_ = State::kBrokenBrackets;
+      push_ = State::kMismatch;
     }
-  }
-
-  bool Tokenizer::ModCrutch(list<std::string>& dest) {
-    int rem = std::distance(pos_, end_);
-    if (std::string_view("mod").compare(0, 3, &pos_[0], std::min(3, rem))) {
-      return false;
-    }
-    push_ = State::kDiscard;
-    if (!IsNumeric(prev_token_) && prev_token_ != TokenType::kCloseBracket)
-      push_ = State::kLonelyOperator;
-    else
-      dest.push_back("%");
-    prev_token_ = TokenType::kOperator;
-    return true;
   }
 
   void Tokenizer::CloseBracket() noexcept {
     if (brackets_.empty()) {
+      fixed_ = true;
       push_ = State::kDiscard;
     } else {
       brackets_.pop();
@@ -77,7 +68,7 @@ namespace s21 {
     } else if (OpUnary(pos_)) {
         dest.push_back(std::string(1, OpUnary(pos_)));
     } else {
-      push_ = State::kLonelyOperator;
+      push_ = State::kMismatch;
     }
     prev_token_ = current_token_;
   }
@@ -182,12 +173,10 @@ namespace s21 {
   }
 
   void Tokenizer::ThrowErrors(const std::string_view& last_token) const {
-    if (push_ == State::kBrokenBrackets)
-      throw std::logic_error("Expression has broken brackets");
-    else if (push_ == State::kFunctionErr)
+    if (push_ == State::kFunctionErr)
       throw std::logic_error("Expression has unknown function");
-    else if (push_ == State::kLonelyOperator)
-      throw std::logic_error("Expression has mismatched operator");
+    else if (push_ == State::kMismatch)
+      throw std::logic_error("Expression has mismatched token");
     else if (!ExprFinished(GetTokenType(*last_token.begin())))
       throw std::logic_error("Expression is not finished");
   }

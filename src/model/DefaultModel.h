@@ -8,7 +8,7 @@
 #include "Calculator.h"
 
 namespace s21 {
-class DefaultModel : public ICalculationModel {
+class DefaultModel final : public ICalculationModel {
   public:
     typedef ICalculationModel BaseModel;
     typedef typename ICalculationModel::set_type set_type;
@@ -34,6 +34,8 @@ class DefaultModel : public ICalculationModel {
         throw std::invalid_argument("Expression is too long");
       expr_ = to_polish_.Translate(fixer_.Tokenize(expression));
     }
+
+    bool ExressionChanged() noexcept override { return fixer_.ExpressionChanged();}
   private:
 
     list<std::string> expr_;
