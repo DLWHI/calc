@@ -18,32 +18,33 @@ set(DEFAULT_UNIX_FLAGS -Wall -Werror -Wextra -g)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   add_compile_options(${DEFAULT_UNIX_FLAGS} -fdiagnostics-color=always)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-  add_compile_options(${DEFAULT_UNIX_FLAGS} -fdiagnostics-color=always)
+  add_compile_options(${DEFAULT_UNIX_FLAGS} -fdiagnostics-color=always -fsanitize=address)
+  add_link_options(-fsanitize=address)
 endif()
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets PrintSupport)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets PrintSupport)
 
 set(MODEL_SOURCES 
-    src/model/Tokenizer.cc
-    src/model/Translator.cc
-    src/model/Calculator.cc
+    src/model/tokenizer.cc
+    src/model/translator.cc
+    src/model/calculator.cc
 )
 
 set(CONTROLLER_SOURCES 
         )
 
 set(VIEW_SOURCES 
-        src/view/mainwindow.cpp
-        src/view/mainwindow.ui
-        src/view/assets.qrc
-        src/view/qcustomplot.cpp
+    src/view/mainwindow.cc
+    src/view/mainwindow.ui
+    src/view/assets.qrc
 )
 
 set(PROJECT_SOURCES
-        main.cpp
+        main.cc
         ${VIEW_SOURCES}
         ${CONTROLLER_SOURCES}
+        src/external/plot/qcustomplot.cc
 )
 
 include(FetchContent)
@@ -69,9 +70,10 @@ else()
         ${PROJECT_SOURCES} assets/icon.png)
 endif()
 
+include_directories(src/external/containers src/external/plot)
+
 add_library(model ${MODEL_SOURCES})
 
-target_include_directories(SmartCalc_v2 PRIVATE src/view)
 target_link_libraries(SmartCalc_v2 PRIVATE model Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::PrintSupport)
 
 set_target_properties(SmartCalc_v2 PROPERTIES
@@ -88,7 +90,7 @@ enable_testing()
 
 add_executable(
   tokenizer_test
-  tests/TokenizerTest.cc
+  tests/tokenizertest.cc
 )
 
 target_link_libraries(
@@ -99,7 +101,7 @@ target_link_libraries(
 
 add_executable(
   model_integration
-  tests/ModelTest.cc
+  tests/modeltest.cc
 )
 
 target_link_libraries(

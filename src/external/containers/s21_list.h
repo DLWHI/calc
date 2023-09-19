@@ -2,6 +2,7 @@
 #define SRC_CONTAINERS_S21_LIST_H_
 
 #include <cstddef>
+#include <iostream>
 #include <list>
 #include <ostream>
 #include <stdexcept>
@@ -23,16 +24,20 @@ class list {
   typedef const T& const_reference;
   typedef ListIterator<Node> iterator;
   typedef ListIterator<const Node> const_iterator;
-  typedef size_t size_type;
+  typedef uint32_t size_t;
 
   // Default constructor
-  list() : head_{value_type(), &head_, &head_}, counter_(0){};
+  list()
+      : counter_(0),
+        head_{value_type(), &head_, &head_} {
+
+        };
 
   /*  Parameterized constructor
   in stl list is circular */
-  list(size_type n) : list() {
+  list(size_t n) : list() {
     Node* ptr = &head_;
-    for (size_type i = 0; i < n; ++i) {
+    for (size_t i = 0; i < n; ++i) {
       Node* some = new Node{0, ptr, &head_};
       ptr->next = some;
       head_.prev = some;
@@ -60,7 +65,7 @@ class list {
   list(const list& l) : list() {
     const Node* ptrToL = l.head_.next;
     Node* ptrToCopy = &head_;
-    for (size_type i = 0; i < l.counter_; ++i) {
+    for (size_t i = 0; i < l.counter_; ++i) {
       Node* some = new Node{ptrToL->data, ptrToCopy, &head_};
       ptrToCopy->next = some;
       head_.prev = some;
@@ -118,18 +123,13 @@ class list {
   const_iterator end() const { return const_iterator(&head_); }
 
   //  List Capacity:  ---------------------------------------------------------
-  bool empty() const {
-    if (this->counter_ == 0) {
-      return 1;
-    }
-    return 0;
-  }
+  bool empty() const { return !counter_; }
 
   //  Returns number of elements in the list
-  size_type size() { return counter_; }
+  size_t size() { return counter_; }
 
   //  Returns max number of elements
-  size_type max_size() const { return size_type(-1); }
+  size_t max_size() const { return size_t(-1); }
 
   //  List Modifiers  ---------------------------------------------------------
   void clear() {
@@ -338,9 +338,13 @@ class list {
       return *this;
     }
 
-    bool operator==(const ListIterator& other) const { return ptr_ == other.ptr_; }
+    bool operator==(const ListIterator& other) const {
+      return ptr_ == other.ptr_;
+    }
 
-    bool operator!=(const ListIterator& other) const { return ptr_ != other.ptr_; }
+    bool operator!=(const ListIterator& other) const {
+      return ptr_ != other.ptr_;
+    }
 
     //  - int overload used in insert:
     ListIterator operator-(int k) {
@@ -363,7 +367,7 @@ class list {
     operator ListIterator<const TI>() const {
       return ListIterator<const TI>(ptr_);
     }
-    
+
     const T& operator*() const { return ptr_->data; }
 
    private:
@@ -404,8 +408,8 @@ class list {
     initial.counter_ = 0;
   }
 
-  Node head_;
   size_t counter_;
+  Node head_;
 };
 
 }  // namespace s21

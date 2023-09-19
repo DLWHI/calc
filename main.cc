@@ -1,6 +1,6 @@
-#include "src/model/DefaultModel.h"
+#include "src/model/defaultmodel.h"
 #include "src/view/mainwindow.h"
-#include "src/controller/CalcModelController.h"
+#include "src/controller/calcmodelcontroller.h"
 
 #include <QApplication>
 #include <iostream>

@@ -80,6 +80,21 @@
     "ranges": "cpp",
     "stop_token": "cpp",
     "thread": "cpp",
-    "iostream": "cpp"
+    "iostream": "cpp",
+    "any": "cpp",
+    "iomanip": "cpp",
+    "set": "cpp",
+    "cinttypes": "cpp",
+    "codecvt": "cpp",
+    "forward_list": "cpp",
+    "fstream": "cpp",
+    "stack": "cpp",
+    "unordered_set": "cpp",
+    "filesystem": "cpp",
+    "qfontdatabase": "cpp",
+    "qtextstream": "cpp",
+    "qregexp": "cpp",
+    "qmainwindow": "cpp",
+    "regex": "cpp"
   }
 }

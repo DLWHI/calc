@@ -3,10 +3,38 @@
 	"tasks": [
 		{
 			"type": "cmake",
-			"label": "CMake: build",
+			"label": "build_app",
 			"command": "build",
 			"targets": [
-				"all"
+				"SmartCalc_v2"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": [],
+			"detail": "CMake template build task"
+		},
+		{
+			"type": "cmake",
+			"label": "build_tokenizer",
+			"command": "build",
+			"targets": [
+				"tokenizer_test"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": [],
+			"detail": "CMake template build task"
+		},
+		{
+			"type": "cmake",
+			"label": "build_model",
+			"command": "build",
+			"targets": [
+				"model_integration"
 			],
 			"group": {
 				"kind": "build",

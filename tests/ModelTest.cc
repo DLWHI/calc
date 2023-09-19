@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../src/model/DefaultModel.h"
+#include "../src/model/defaultmodel.h"
 
 typedef s21::DefaultModel TestingModel;
 
@@ -215,6 +215,11 @@ TEST_F(ModelIntegrationTest, case_set) {
     EXPECT_NEAR(set.second[i], 1 - set.first[i]*set.first[i]/2, eps);
 }
 
+TEST_F(ModelIntegrationTest, case_set_invalid) {
+  subject->setExpression("1-xx/2");
+  EXPECT_THROW(subject->Plot(M_PI, -M_PI), std::domain_error);
+}
+
 
 
 TEST_F(ModelIntegrationTest, case_broken_numbers_1) {
@@ -257,6 +262,16 @@ TEST_F(ModelIntegrationTest, case_boobs) {
 TEST_F(ModelIntegrationTest, case_dick) {
   subject->setExpression("./.");
   EXPECT_THROW(subject->Calculate(), std::invalid_argument);
+}
+
+TEST(test_2, err_ass) {
+  s21::Model test;
+  ASSERT_EQ(test.Calculator("(_;_)"), "PolushNotationError");
+}
+
+TEST(test_3, err_boobs) {
+  s21::Model test;
+  ASSERT_EQ(test.Calculator("(_._)(_._)"), "PolushNotationError");
 }
 
 TEST_F(ModelIntegrationTest, case_long) {

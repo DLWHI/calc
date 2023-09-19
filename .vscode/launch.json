@@ -7,11 +7,29 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug",
-      "program": "${workspaceFolder}/build/calc.v2.app",
+      "name": "Application",
+      "program": "${workspaceFolder}/build/SmartCalc_v2.app",
       "args": [],
       "cwd": "${workspaceFolder}",
-      "preLaunchTask": "CMake: build"
+      "preLaunchTask": "build_app"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Tokenizer",
+      "program": "${workspaceFolder}/build/tokenizer_test",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "build_tokenizer"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Model",
+      "program": "${workspaceFolder}/build/model_integration",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "build_model"
     }
   ]
 }

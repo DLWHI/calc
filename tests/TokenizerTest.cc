@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../src/model/Tokenizer.h"
+#include "../src/model/tokenizer.h"
 
 std::string to_string(s21::list<std::string> tokens) {
   std::string result;

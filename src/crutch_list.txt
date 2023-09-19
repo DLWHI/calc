@@ -1,4 +1,0 @@
-1. Making Tokenizer::GetTokenType static 
-   instead of making seperate class for tokens
-3. Replacing all mod/pow with operators before fixing
-4. Maybe should have implemented custom container for tokens

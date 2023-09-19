@@ -231,11 +231,11 @@ class vector {
     forward_resize(count, value);
   }
 
-  void push_back(const_reference value) { 
+  void push_back(const_reference value) {
     insert(end(), std::forward<const value_type>(value));
   }
 
-  void push_back(move_reference value) { 
+  void push_back(move_reference value) {
     insert(end(), std::forward<value_type>(value));
   }
 
@@ -245,7 +245,8 @@ class vector {
   }
 
   v_iterator insert(v_const_iterator pos, const_reference value) {
-    return forward_insert<const_reference>(pos, std::forward<const value_type>(value));
+    return forward_insert<const_reference>(
+        pos, std::forward<const value_type>(value));
   }
 
   v_iterator insert(v_const_iterator pos, move_reference value) {
@@ -387,7 +388,8 @@ void vector<T>::forward_resize(size_t count, Args&&... value) {
       al.move_chunk_left(ptr_, ptr_ + size_, mem);
       swap_buffers(mem);
     }
-    al.construct_multiple(ptr_ + size_, count - size_, std::forward<Args>(value)...);
+    al.construct_multiple(ptr_ + size_, count - size_,
+                          std::forward<Args>(value)...);
   }
   size_ = count;
 }
